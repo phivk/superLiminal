@@ -1,1 +1,8 @@
+# textmate project
 *.tmproj
+
+# media files
+*.jpg
+
+# archives
+*.zip
