@@ -14,7 +14,117 @@
 
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
+        
+        
+        <style type="text/css">
+      		#stage {
+      			top: 0px;
+      			left: 0px;
+      			z-index: 100;
+      		}
+      		.stage {
+      			position: absolute;
+      			top: 0;
+      			left: 0;
+      			width: 100%;
+      			min-width: 900px;
+      			height: 359px;
+      			overflow: hidden;
+      		}
+      		#bg {
+      			background: #aedfe5 url(img/spritely/sky1.png) 0 0 repeat-x;
+      		}
+      		#clouds {
+      			background: transparent url(img/spritely/cloud.png) 305px 102px repeat-x;
+      		}
+      		#hill2 {
+      			background: transparent url(img/spritely/hill2.png) 0 258px repeat-x;
+      		}
+      		#hill1 {
+      			background: transparent url(img/spritely/hill-with-windmill.png) 0 104px repeat-x;
+      		}
+      		#balloons {
+                              position: relative;
+                              left: 720px;
+      			background: transparent url(img/spritely/balloons.png) 0 0 repeat-y;
+      		}
+      		#bird {
+      			background: transparent url(img/spritely/bird-forward-back.png) 0 0 no-repeat;
+      			position: absolute;
+      			top: 150px;
+      			left: 65px;
+      			width: 180px;
+      			height: 123px;
+      			z-index: 2000;
+      			cursor: pointer;
+      		}
+      	</style>
+        
+        
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="js/vendor/jquery-1.8.3.min.js" type="text/javascript"></script>
+        <!-- // <script src="spritely/scripts/jquery-ui-1.7.2.spritely.custom.min.js" type="text/javascript"></script> -->
+      	<script src="js/spritely/jquery.spritely-0.6.1.js" type="text/javascript"></script>
+      	
+      	<script type="text/javascript">
+
+      		(function($) {
+      			$(document).ready(function() {
+
+      				$('#bird')
+      					.sprite({fps: 9, no_of_frames: 3})
+                // .spRandom({top: 50, bottom: 200, left: 300, right: 320})
+      					.isDraggable()
+      					.activeOnClick()
+      					.active();
+      				window.actions = {
+      					fly_slowly_forwards: function() {
+      						$('#bird')
+      							.fps(10)
+      							.spState(1);
+      					},
+      					fly_slowly_backwards: function() {
+      						$('#bird')
+      							.fps(10)
+      							.spState(2);
+      					},
+      					fly_quickly_forwards: function() {
+      						$('#bird')
+      							.fps(20)
+      							.spState(1);
+      					},
+      					fly_quickly_backwards: function() {
+      						$('#bird')
+      							.fps(20)
+      							.spState(2);
+      					},
+      					fly_like_lightning_forwards: function() {
+      						$('#bird')
+      							.fps(25)
+      							.spState(1);
+      					},
+      					fly_like_lightning_backwards: function() {
+      						$('#bird')
+      							.fps(25)
+      							.spState(2);
+      					}
+      				};
+
+      				window.page = {
+      					hide_panels: function() {
+      						$('.panel').hide(300);
+      					},
+      					show_panel: function(el_id) {
+      						this.hide_panels();
+      						$(el_id).show(300);
+      					}
+      				}
+
+      			});
+      		})(jQuery);
+
+      	</script>
+      	
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -22,12 +132,24 @@
         <![endif]-->
 
         <!-- Add your site or application content here -->
-        <p>Hello world! This is HTML5 Boilerplate.</p>
+        <p>Hello world!</p>
+        <div id="frames"></div>
+        <!-- <div id="stage" class="stage">
+          <div id="tap" class="stage"></div>
+          <div id="bg" class="stage"></div>
+          <div id="clouds" class="stage"></div>
+          <div id="hill2" class="stage"></div>
+          <div id="hill1" class="stage"></div>
+                      <div id="balloons" class="stage"></div>
+          <div id="logo">Spritely</div>
+        </div> -->
+      	<div id="bird"></div>
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.3.min.js"><\/script>')</script>
+        <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.3.min.js"><\/script>')</script> -->
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
+
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <!-- <script>
