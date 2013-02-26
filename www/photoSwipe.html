@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PhotoSwipe</title>
+	<meta name="author" content="Ste Brennan - Code Computerlove - http://www.codecomputerlove.com/" />
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+	<link href="css/photoswipe.css" type="text/css" rel="stylesheet" />
+	
+	<script type="text/javascript" src="js/photoswipe/lib/klass.min.js"></script>
+	<script type="text/javascript" src="js/photoswipe/code.photoswipe-3.0.5.min.js"></script>
+	
+	
+	<script type="text/javascript">
+
+		(function(window, PhotoSwipe){
+		
+			document.addEventListener('DOMContentLoaded', function(){
+			
+				var
+					options = {
+						preventHide: true,
+						getImageSource: function(obj){
+							return obj.url;
+						},
+						getImageCaption: function(obj){
+							return obj.caption;
+						}
+					},
+					instance = PhotoSwipe.attach( 
+						[
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2676.jpg', caption: 'Image 001'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2677.jpg', caption: 'Image 002'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2678.jpg', caption: 'Image 003'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2679.jpg', caption: 'Image 004'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2680.jpg', caption: 'Image 005'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2681.jpg', caption: 'Image 006'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2682.jpg', caption: 'Image 007'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2683.jpg', caption: 'Image 008'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2684.jpg', caption: 'Image 009'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2685.jpg', caption: 'Image 010'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2686.jpg', caption: 'Image 011'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2687.jpg', caption: 'Image 012'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2688.jpg', caption: 'Image 013'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2689.jpg', caption: 'Image 014'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2690.jpg', caption: 'Image 015'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2691.jpg', caption: 'Image 016'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2692.jpg', caption: 'Image 017'},
+							{ url: 'img/pilot_sequence/1280_720/SUPERLIMINAL_SebastianMelo_master_1920x1080p-25fps-2693.jpg', caption: 'Image 018'},
+						], 
+						options 
+					);
+          
+					instance.show(0);
+					
+			}, false);
+			
+			
+		}(window, window.Code.PhotoSwipe));
+		
+	</script>
+	
+</head>
+<body>
+
+
+</body>
+</html>

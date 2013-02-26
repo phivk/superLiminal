@@ -31,23 +31,6 @@
       			height: 359px;
       			overflow: hidden;
       		}
-      		#bg {
-      			background: #aedfe5 url(img/spritely/sky1.png) 0 0 repeat-x;
-      		}
-      		#clouds {
-      			background: transparent url(img/spritely/cloud.png) 305px 102px repeat-x;
-      		}
-      		#hill2 {
-      			background: transparent url(img/spritely/hill2.png) 0 258px repeat-x;
-      		}
-      		#hill1 {
-      			background: transparent url(img/spritely/hill-with-windmill.png) 0 104px repeat-x;
-      		}
-      		#balloons {
-                              position: relative;
-                              left: 720px;
-      			background: transparent url(img/spritely/balloons.png) 0 0 repeat-y;
-      		}
       		#bird {
       			background: transparent url(img/spritely/bird-forward-back.png) 0 0 no-repeat;
       			position: absolute;
@@ -55,6 +38,16 @@
       			left: 65px;
       			width: 180px;
       			height: 123px;
+      			z-index: 2000;
+      			cursor: pointer;
+      		}
+      		#frames {
+      		  background: transparent url(img/pilot_sequence/sprites/10x_128_72.png) 0 0 no-repeat;
+            position: absolute;
+            top: 100px;
+            left: 300px;
+            width: 178px;
+            height: 100px;
       			z-index: 2000;
       			cursor: pointer;
       		}
@@ -76,8 +69,13 @@
                 // .spRandom({top: 50, bottom: 200, left: 300, right: 320})
       					.isDraggable()
       					.activeOnClick()
+      					.active();      					
+    				  $('#frames')
+      					.sprite({fps: 6, no_of_frames: 10})
+      					.activeOnClick()
       					.active();
       				window.actions = {
+      				  
       					fly_slowly_forwards: function() {
       						$('#bird')
       							.fps(10)
