@@ -28,9 +28,31 @@
 			
 				var
 					options = {
-						preventHide: true,
+            captionAndToolbarHide: true,
+            enableDrag: false,
+            // How images will fit onto the screen. Either "fit", "fitNoUpscale" or "zoom"
+            imageScaleMethod: "zoom",
+            // The margin between each image in pixels.
+            margin: 0,
+            // The maximum a user can zoom into an image. Default = 5.0 (set to zero for this to be ignored)
+            maxUserZoom: 3,
+            // The min a user can zoom into an image. Default = 0.5 (set to zero for this to be ignored)
+            minUserZoom: 1,
+            // mouseWheelSpeed: How responsive the mouse wheel is. Default = 500
+            // 6 fps: 1000 / 6 = 167 ms
+            mouseWheelSpeed: 167,
+            // nextPreviousSlideSpeed: How fast images are displayed when the next/previous buttons are clicked in milliseconds. Default = 0 (immediately)
+            nextPreviousSlideSpeed: 167,
+            // prevent user from closing photoSwipe (e.g. by ESC)
+            preventHide: true,
+            // Prevents the slideshow being activated. Also hides the "play" button from the toolbar. Default = false
+            preventSlideshow: true,
+            // Easing function used when sliding. Default = "ease-out". "step-start" jumps immediately to the end state of the animation
+            slideTimingFunction: "step-start",
+            // DOM Target for PhotoSwipe. By default "window" which will mean PhotoSwipe runs "fullscreen". Value must be a valid DOM element.
+            // target: "frames",
 						getImageSource: function(obj){
-							return obj.url;
+							return obj.url_full;
 						},
 						getImageCaption: function(obj){
 							return obj.caption;
@@ -39,42 +61,37 @@
 					instance = PhotoSwipe.attach( 
 						[
 						    
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_001.jpg', caption: 'Image 001'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_002.jpg', caption: 'Image 002'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_003.jpg', caption: 'Image 003'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_004.jpg', caption: 'Image 004'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_005.jpg', caption: 'Image 005'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_006.jpg', caption: 'Image 006'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_007.jpg', caption: 'Image 007'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_008.jpg', caption: 'Image 008'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_009.jpg', caption: 'Image 009'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_010.jpg', caption: 'Image 010'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_011.jpg', caption: 'Image 011'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_012.jpg', caption: 'Image 012'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_013.jpg', caption: 'Image 013'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_014.jpg', caption: 'Image 014'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_015.jpg', caption: 'Image 015'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_016.jpg', caption: 'Image 016'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_017.jpg', caption: 'Image 017'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_018.jpg', caption: 'Image 018'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_019.jpg', caption: 'Image 019'},
-							{ url: 'img/pilot_sequence/1280_720/superLiminal_1280x720_020.jpg', caption: 'Image 020'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_001.jpg', caption: 'Image 001'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_002.jpg', caption: 'Image 002'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_003.jpg', caption: 'Image 003'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_004.jpg', caption: 'Image 004'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_005.jpg', caption: 'Image 005'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_006.jpg', caption: 'Image 006'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_007.jpg', caption: 'Image 007'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_008.jpg', caption: 'Image 008'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_009.jpg', caption: 'Image 009'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_010.jpg', caption: 'Image 010'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_011.jpg', caption: 'Image 011'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_012.jpg', caption: 'Image 012'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_013.jpg', caption: 'Image 013'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_014.jpg', caption: 'Image 014'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_015.jpg', caption: 'Image 015'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_016.jpg', caption: 'Image 016'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_017.jpg', caption: 'Image 017'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_018.jpg', caption: 'Image 018'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_019.jpg', caption: 'Image 019'},
+							{ url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_020.jpg', caption: 'Image 020'},
 						], 
 						options 
 					);
           
 					instance.show(0);
-					
 			}, false);
-			
-			
 		}(window, window.Code.PhotoSwipe));
 		
 	</script>
 	
 </head>
 <body>
-
-
 </body>
 </html>
