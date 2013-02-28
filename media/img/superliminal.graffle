@@ -14,7 +14,7 @@
 	<key>BackgroundGraphic</key>
 	<dict>
 		<key>Bounds</key>
-		<string>{{0, 0}, {1352, 1213.75}}</string>
+		<string>{{0, 0}, {1352, 690}}</string>
 		<key>Class</key>
 		<string>SolidGraphic</string>
 		<key>ID</key>
@@ -38,7 +38,7 @@
 	<key>CanvasOrigin</key>
 	<string>{0, 0}</string>
 	<key>CanvasSize</key>
-	<string>{1352, 1213.75}</string>
+	<string>{1352, 690}</string>
 	<key>ColumnAlign</key>
 	<integer>1</integer>
 	<key>ColumnSpacing</key>
@@ -1184,7 +1184,7 @@
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2013-02-26 14:35:12 +0000</string>
+	<string>2013-02-26 18:20:51 +0000</string>
 	<key>Modifier</key>
 	<string>Philo van Kemenade</string>
 	<key>NotesVisible</key>
@@ -1244,17 +1244,15 @@
 	<key>UseEntirePage</key>
 	<false/>
 	<key>VPages</key>
-	<integer>2</integer>
+	<integer>1</integer>
 	<key>WindowInfo</key>
 	<dict>
 		<key>CurrentSheet</key>
 		<integer>0</integer>
 		<key>ExpandedCanvases</key>
 		<array/>
-		<key>FitInWindow</key>
-		<true/>
 		<key>Frame</key>
-		<string>{{361, 252}, {717, 626}}</string>
+		<string>{{361, 65}, {998, 813}}</string>
 		<key>ListView</key>
 		<false/>
 		<key>OutlineWidth</key>
@@ -1266,15 +1264,15 @@
 		<key>SidebarWidth</key>
 		<integer>138</integer>
 		<key>VisibleRegion</key>
-		<string>{{2.34363, 2.34363}, {1347.59, 1211.66}}</string>
+		<string>{{445.399, 0.613497}, {516.564, 422.699}}</string>
 		<key>Zoom</key>
-		<real>0.42668864130973816</real>
+		<real>1.6299999952316284</real>
 		<key>ZoomValues</key>
 		<array>
 			<array>
 				<string>Canvas 1</string>
-				<real>0.0</real>
-				<real>1</real>
+				<real>1.6299999952316284</real>
+				<real>1.4700000286102295</real>
 			</array>
 		</array>
 	</dict>
