@@ -21,13 +21,18 @@
 
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/main.css">
-	<link href="css/photoswipe.css" type="text/css" rel="stylesheet" />
+	<link rel="stylesheet" href="css/photoswipe.css" type="text/css" />
+	<link rel="stylesheet" href="css/uielements.css">
 
 	<script src="js/vendor/modernizr-2.6.2.min.js"></script>
+
+	<script src="js/vendor/jquery-1.9.1.js"></script>
+  <script src="js/vendor/jquery-ui-1.10.1.custom.js"></script>
 	
   <!-- load in photoSwipe library -->
 	<script type="text/javascript" src="js/photoswipe/lib/klass.min.js"></script>
-	<script type="text/javascript" src="js/photoswipe/code.photoswipe-3.0.5.min.js"></script>	
+	<script type="text/javascript" src="js/photoswipe/code.photoswipe-3.0.5.min.js"></script>
+	
 	
   <!-- custom script calling photoSwipe -->
 	<script type="text/javascript" src="js/frameSwipe.js"></script>
@@ -36,14 +41,17 @@
   <!--[if lt IE 7]>
       <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
   <![endif]-->
+  <div id="frames"></div>
+  <div id="progressbar"></div>
+  <script>
+  $( "#progressbar" ).progressbar({
+    value: 37
+  });
+  </script>
   
-  <div id="progress">
-        
-  </div>
   
-  
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.8.3.min.js"><\/script>')</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script> -->
   <script src="js/plugins.js"></script>
   <script src="js/main.js"></script>
 </body>
