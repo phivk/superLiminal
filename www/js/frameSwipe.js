@@ -25,6 +25,7 @@
       slideTimingFunction: "step-start",
       // DOM Target for PhotoSwipe. By default "window" which will mean PhotoSwipe runs "fullscreen". Value must be a valid DOM element.
       // target: "frames",
+      // target: window.document.querySelectorAll('#frames')[0],
 			getImageSource: function(obj){
 				return obj.url_full;
 			},
@@ -51,8 +52,10 @@
     var indexStart = 1;
     var indexEnd = 20;
     imgList = getImgObjList(folder, fileNameStart, extension, indexStart, indexEnd);
+    
 		instance = PhotoSwipe.attach(imgList, options);
 		instance.show(0);
+		
 	}, false);
 }(window, window.Code.PhotoSwipe));
 

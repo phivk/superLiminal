@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PhotoSwipe</title>
+	<meta name="author" content="Ste Brennan - Code Computerlove - http://www.codecomputerlove.com/" />
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<link href="css/styles.css" type="text/css" rel="stylesheet" />
+	
+	<link href="css/photoswipe.css" type="text/css" rel="stylesheet" />
+	
+	<script type="text/javascript" src="js/photoswipe/lib/klass.min.js"></script>
+	<script type="text/javascript" src="js/photoswipe/code.photoswipe-3.0.5.min.js"></script>
+	
+	
+	<script type="text/javascript">
+		
+		/* 
+			Overview: 
+			---------
+			
+			Demonstrates inline functionality. This demo sets the images using an array.
+			There is nothing stopping you basing this on image dom elements like other examples
+		
+		*/
+		
+		(function(window, Util, PhotoSwipe){
+			
+			Util.Events.domReady(function(e){
+				
+				var instance;
+				
+				var options = {
+				  target: window.document.querySelectorAll('#PhotoSwipeTarget')[0],
+          captionAndToolbarHide: true,
+          enableDrag: false,
+          // How images will fit onto the screen. Either "fit", "fitNoUpscale" or "zoom"
+          imageScaleMethod: "zoom",
+          // The margin between each image in pixels.
+          margin: 0,
+          // The maximum a user can zoom into an image. Default = 5.0 (set to zero for this to be ignored)
+          maxUserZoom: 3,
+          // The min a user can zoom into an image. Default = 0.5 (set to zero for this to be ignored)
+          minUserZoom: 1,
+          // mouseWheelSpeed: How responsive the mouse wheel is. Default = 500
+          // 6 fps: 1000 / 6 = 167 ms
+          mouseWheelSpeed: 167,
+          // nextPreviousSlideSpeed: How fast images are displayed when the next/previous buttons are clicked in milliseconds. Default = 0 (immediately)
+          nextPreviousSlideSpeed: 167,
+          // prevent user from closing photoSwipe (e.g. by ESC)
+          preventHide: true,
+          // Prevents the slideshow being activated. Also hides the "play" button from the toolbar. Default = false
+          preventSlideshow: true,
+          // Easing function used when sliding. Default = "ease-out". "step-start" jumps immediately to the end state of the animation
+          slideTimingFunction: "step-start",
+          // DOM Target for PhotoSwipe. By default "window" which will mean PhotoSwipe runs "fullscreen". Value must be a valid DOM element.
+          // target: "frames",
+          // target: window.document.querySelectorAll('#frames')[0],
+    			getImageSource: function(obj){
+    				return obj.url_full;
+    			},
+    			getImageCaption: function(obj){
+    				return obj.caption;
+    			}
+    		};
+								
+				// construct list of photoSwipe img objects
+        function getImgObjList(folder, fileNameStart, extension, indexStart, indexEnd) {
+          imgList = []
+          for (var i = indexStart; i < indexEnd + 1; i++) {
+            img = {
+              url_full: folder + fileNameStart + ('000' + i).substr(-3) + extension,
+              caption: 'Image '+ ('000' + i).substr(-3)
+            };
+            imgList.push(img);
+          };
+          return imgList;
+        };
+        // img file range options
+        var folder = "img/pilot_sequence/1280_720/";
+        var fileNameStart = "superLiminal_1280x720_";
+        var extension = ".jpg";
+        var indexStart = 1;
+        var indexEnd = 20;
+        imgList = getImgObjList(folder, fileNameStart, extension, indexStart, indexEnd);
+				
+				instance = PhotoSwipe.attach(
+					imgList,
+					options
+				);
+				instance.show(0);
+				
+			});
+			
+			
+		}(window, window.Code.Util, window.Code.PhotoSwipe));
+		
+	</script>
+	
+</head>
+<body>
+  <!-- <div class="fullscreen">
+    <p>Here is my div content!!</p>
+  </div> -->
+  
+  <!-- <div id="fsdiv" class= "fullscreen"> more fs...</div> -->
+  <div id="MainContent">
+    <div id="PhotoSwipeTarget" class=""></div>
+  </div>
+
+</body>
+</html>
