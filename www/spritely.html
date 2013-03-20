@@ -7,8 +7,21 @@
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
-        <link rel="stylesheet" href="css/scrollframes.css">
+        <!-- <link rel="stylesheet" href="css/scrollframes.css"> -->
         
+        
+        <style type="text/css">
+          #scrollframes {
+            background: transparent url(img/pilot_sequence/sprites/10x_128_72_ball.png) 0 0 no-repeat;
+            position: absolute;
+            top: 100px;
+            left: 100px;
+            width: 178px;
+            height: 100px;
+            z-index: 2000;
+            cursor: pointer;
+          }
+        </style>
         
         <!-- vendor includes -->
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
@@ -19,6 +32,9 @@
         
         <!-- custom script for scroll video interaction -->
         <script type="text/javascript" src="js/scrollframes.js"></script>
+        <script type="text/javascript" charset="utf-8">
+          // var myFramesScroller = new FrameScroller();
+        </script>
         
     </head>
     <body>
