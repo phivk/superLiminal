@@ -1,3 +1,6 @@
+// TODO
+// contact Sebastian re reverse sprite direction
+
 document.addEventListener("DOMContentLoaded", function () {
   
   // define FrameScoller class
@@ -22,18 +25,24 @@ document.addEventListener("DOMContentLoaded", function () {
     
     this.setFPS = function (fps) {
       this.fps = fps;
+      // TODO set sprite direction
+      // contact Sebastian re sprites with two directions
+      $(this.targetDiv).fps(Math.abs(this.fps));
+      console.log("fps set:", fps);
     };
     
   };
   
   // define ScrollController class
-  function ScrollController (controlDiv) {
+  function ScrollController (controlDiv, targetFrameScroller) {
     // construct ScrollController
     var _self = this;
     this.controlDiv = controlDiv;
+    this.targetFrameScroller = targetFrameScroller;
     this.delta = 0;
     this.deltaX = 0;
     this.deltaY = 0;
+    this.scrollDelay = 500;
     
     $(this.controlDiv).mousewheel(function(event, delta, deltaX, deltaY) {
         _self.mousewheelHandler(event, delta, deltaX, deltaY);
@@ -65,6 +74,64 @@ document.addEventListener("DOMContentLoaded", function () {
       this.setDelta(delta);
       this.setDeltaX(deltaX);
       this.setDeltaY(deltaY);
+      console.log(delta, deltaX, deltaY);
+      var scrollSpeed = this.wheelToScroll(delta, deltaX, deltaY);
+      this.setScrollOut();
+      this.targetFrameScroller.setFPS(scrollSpeed);
+    };
+    
+    this.setScrollOut = function () {
+      this.lastWheelStamp = new Date().getTime();
+      console.log("this.lastWheelStamp in setScrollOut: ", this.lastWheelStamp);
+      var scrollTimeoutID = window.setTimeout(_self.scrollOut, _self.scrollDelay);      
+    };
+    
+    this.scrollOut = function () {
+      var nowStamp = new Date().getTime();
+      console.log("this.lastWheelStamp: ", _self.lastWheelStamp);
+      console.log("nowStamp: ", nowStamp);
+      console.log("deltatime: ", nowStamp - _self.lastWheelStamp);
+      if ((nowStamp - _self.lastWheelStamp) >= 0.9 * _self.scrollDelay) {
+        
+        if (_self.targetFrameScroller.getFPS() > 2) {
+          var decayFactor = 0.6;
+          var decayed = _self.targetFrameScroller.getFPS() * decayFactor;
+          console.log("*********DECAYING LOG!!!!");
+          _self.targetFrameScroller.setFPS(decayed);
+          window.setTimeout(_self.scrollOut, 100);
+        }
+        else {
+          console.log("*********KILLING LOG!!!!");
+          _self.targetFrameScroller.setFPS(0);
+        };
+        // _self.targetFrameScroller.setFPS(0);
+      };
+    };
+    
+    // normalize mousewheel delta to frame scroll speed
+    this.wheelToScroll = function (delta, deltaX, deltaY) {
+      // pick greatest mousewheelDelta
+      var controlDelta;
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        controlDelta = deltaX;
+      }
+      else {
+        // inverse deltaY so downward mousewheel is forward scroll
+        controlDelta = -deltaY;
+      };
+      
+      // transform mousewheel speed to scroll speed
+      
+      // using inverse hyperbolic sine function sinh^-1(x) == log(x+sqrt(x^2 + 1))
+      // http://www.wolframalpha.com/input/?i=y+%3D+15+*+log%28x%2Bsqrt%28x%5E2+%2B+1%29%29+%28x+from+-500+to+500%29
+      var scrollSpeed = 5 * Math.log(controlDelta+Math.sqrt(Math.pow(controlDelta,2) + 1));
+      
+      // using double logistic sigmoid function
+      // http://www.wolframalpha.com/input/?i=plot+y%3D+100+*+sgn%28x%29*%281+-+e%5E%28-%280.02x%29%5E2%29%29+%28x+from+-300+to+300%29
+      // var scrollSpeed = 100 * sign(controlDelta) * (1 - Math.exp( - Math.pow( 0.02 * controlDelta, 2)));
+      // *not responsive enough on start of scroll
+      console.log('scrollspeed: ', scrollSpeed);
+      return scrollSpeed;
     };
      
   };
@@ -72,23 +139,9 @@ document.addEventListener("DOMContentLoaded", function () {
   // init FrameScroller object
   var myFrameScroller = new FrameScroller("#scrollframes", 10);
   console.log(myFrameScroller.getTargetDiv());
-  
-  
-  var myScrollController = new ScrollController("#scrollframes");
-  // $("#scrollframes").mousewheel(function(event, delta, deltaX, deltaY) {
-  //       myScrollController.setDelta(delta);
-  //       myScrollController.setDeltaX(deltaX);
-  //       myScrollController.setDeltaY(deltaY);
-
-  //   });
+  var myScrollController = new ScrollController("#scrollframes", myFrameScroller);
   
   var framesId = "#scrollframes";
-  
-  // $(framesId).mousewheel(function(event, delta, deltaX, deltaY) {
-  //     console.log(delta, deltaX, deltaY); 
-  //     $(framesId)
-  //        .fps(deltaY);        
-  // });
   
   (function($) {
 		$(document).ready(function() {
