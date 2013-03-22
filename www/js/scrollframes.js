@@ -42,7 +42,12 @@ document.addEventListener("DOMContentLoaded", function () {
     this.delta = 0;
     this.deltaX = 0;
     this.deltaY = 0;
-    this.scrollDelay = 500;
+    // wheelToScroll parameters
+    this.scrollMax = 30;
+    // smoothing parameters
+    this.scrollOutDelay = 500;
+    this.decayFactor = 0.6;
+    
     
     $(this.controlDiv).mousewheel(function(event, delta, deltaX, deltaY) {
         _self.mousewheelHandler(event, delta, deltaX, deltaY);
@@ -83,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
     this.setScrollOut = function () {
       this.lastWheelStamp = new Date().getTime();
       console.log("this.lastWheelStamp in setScrollOut: ", this.lastWheelStamp);
-      var scrollTimeoutID = window.setTimeout(_self.scrollOut, _self.scrollDelay);      
+      var scrollTimeoutID = window.setTimeout(_self.scrollOut, _self.scrollOutDelay);      
     };
     
     this.scrollOut = function () {
@@ -91,17 +96,17 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("this.lastWheelStamp: ", _self.lastWheelStamp);
       console.log("nowStamp: ", nowStamp);
       console.log("deltatime: ", nowStamp - _self.lastWheelStamp);
-      if ((nowStamp - _self.lastWheelStamp) >= 0.9 * _self.scrollDelay) {
+      if ((nowStamp - _self.lastWheelStamp) >= 0.95 * _self.scrollOutDelay) {
         
-        if (_self.targetFrameScroller.getFPS() > 2) {
-          var decayFactor = 0.6;
-          var decayed = _self.targetFrameScroller.getFPS() * decayFactor;
-          console.log("*********DECAYING LOG!!!!");
+        if (_self.targetFrameScroller.getFPS() > 1) {
+          // var decayFactor = 0.6;
+          var decayed = _self.targetFrameScroller.getFPS() * _self.decayFactor;
+          // console.log("*********DECAYING LOG!!!!");
           _self.targetFrameScroller.setFPS(decayed);
           window.setTimeout(_self.scrollOut, 100);
         }
         else {
-          console.log("*********KILLING LOG!!!!");
+          // console.log("*********KILLING LOG!!!!");
           _self.targetFrameScroller.setFPS(0);
         };
         // _self.targetFrameScroller.setFPS(0);
@@ -124,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
       
       // using inverse hyperbolic sine function sinh^-1(x) == log(x+sqrt(x^2 + 1))
       // http://www.wolframalpha.com/input/?i=y+%3D+15+*+log%28x%2Bsqrt%28x%5E2+%2B+1%29%29+%28x+from+-500+to+500%29
-      var scrollSpeed = 5 * Math.log(controlDelta+Math.sqrt(Math.pow(controlDelta,2) + 1));
+      var scrollSpeed = ( this.scrollMax / 6 ) * Math.log(controlDelta+Math.sqrt(Math.pow(controlDelta,2) + 1));
       
       // using double logistic sigmoid function
       // http://www.wolframalpha.com/input/?i=plot+y%3D+100+*+sgn%28x%29*%281+-+e%5E%28-%280.02x%29%5E2%29%29+%28x+from+-300+to+300%29
