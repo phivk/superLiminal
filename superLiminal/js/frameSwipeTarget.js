@@ -1,7 +1,11 @@
-(function(window, PhotoSwipe){
-
-	document.addEventListener('DOMContentLoaded', function(){
+(function(window, Util, PhotoSwipe){
+	
+	Util.Events.domReady(function(e){
+		
+		var instance;
+		
 		var options = {
+		  target: window.document.querySelectorAll('#PhotoSwipeTarget')[0],
       captionAndToolbarHide: true,
       enableDrag: false,
       // How images will fit onto the screen. Either "fit", "fitNoUpscale" or "zoom"
@@ -32,8 +36,9 @@
 			getImageCaption: function(obj){
 				return obj.caption;
 			}
-		};					
-	  // construct list of photoSwipe img objects
+		};
+						
+		// construct list of photoSwipe img objects
     function getImgObjList(folder, fileNameStart, extension, indexStart, indexEnd) {
       imgList = []
       for (var i = indexStart; i < indexEnd + 1; i++) {
@@ -52,16 +57,14 @@
     var indexStart = 1;
     var indexEnd = 20;
     imgList = getImgObjList(folder, fileNameStart, extension, indexStart, indexEnd);
-    
-		instance = PhotoSwipe.attach(imgList, options);
+		
+		instance = PhotoSwipe.attach(
+			imgList,
+			options
+		);
 		instance.show(0);
 		
-	}, false);
-}(window, window.Code.PhotoSwipe));
-
-// format of imgList
-// [              
-//   { url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_001.jpg', caption: 'Image 001'},
-//   { url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_002.jpg', caption: 'Image 002'},
-//   { url_full: 'img/pilot_sequence/1280_720/superLiminal_1280x720_003.jpg', caption: 'Image 003'},
-// ]
+	});
+	
+	
+}(window, window.Code.Util, window.Code.PhotoSwipe));

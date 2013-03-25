@@ -14,9 +14,9 @@
       minUserZoom: 1,
       // mouseWheelSpeed: How responsive the mouse wheel is. Default = 500
       // 6 fps: 1000 / 6 = 167 ms
-      mouseWheelSpeed: 167,
+      mouseWheelSpeed: 25,
       // nextPreviousSlideSpeed: How fast images are displayed when the next/previous buttons are clicked in milliseconds. Default = 0 (immediately)
-      nextPreviousSlideSpeed: 167,
+      nextPreviousSlideSpeed: 25,
       // prevent user from closing photoSwipe (e.g. by ESC)
       preventHide: true,
       // Prevents the slideshow being activated. Also hides the "play" button from the toolbar. Default = false
@@ -46,11 +46,12 @@
       return imgList;
     };
     // img file range options
-    var folder = "img/pilot_sequence/1280_720/";
-    var fileNameStart = "superLiminal_1280x720_";
+    // var folder = "img/pilot_sequence/1280_720/";
+    var folder = "img/pilot_sequence/128_72/";
+    var fileNameStart = "superLiminal_128x72_";
     var extension = ".jpg";
     var indexStart = 1;
-    var indexEnd = 20;
+    var indexEnd = 500;
     imgList = getImgObjList(folder, fileNameStart, extension, indexStart, indexEnd);
     
 		instance = PhotoSwipe.attach(imgList, options);
