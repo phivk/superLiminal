@@ -7,6 +7,8 @@
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/scrollframes.css">
+        
         <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" media="screen">
         
         
@@ -17,7 +19,7 @@
           #scrollframes {
             background: transparent url(img/pilot_sequence/sprites/10x_128_72_ball.png) 0 0 no-repeat;
 /*            background: transparent url(img/pilot_sequence/sprites/10x_128_72.png) 0 0 no-repeat;*/
-            position: absolute;
+            position: fixed;
             top: 0px;
             left: 0px;
             /*            width: 178px;*/
@@ -59,9 +61,12 @@
         
     </head>
     <body>
+      <div id="wrapper">
         <h1>Hello, world!</h1>
         <div id="testimg">
         </div>
         <div id="scrollframes"></div>
+      </div>
+        
     </body>
 </html>
