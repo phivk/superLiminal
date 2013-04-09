@@ -3,6 +3,9 @@
 // * reverse
 // * hi res images
 // * layout progressbar
+var myFrameScroller;
+var myScrollController;
+var options;
 
 document.addEventListener("DOMContentLoaded", function () {  
   start();
@@ -10,70 +13,143 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 function start () {
-  var options = {
+  // console.log("body before: ", $("body").children());
+
+  options = {
     progress: true,
   }
   
-  setupDOM(options);
-  
-  // init FrameScroller object
-  var myFrameScroller = new FrameScroller("#scrollframes", 10, "#progressDiv");
-  var myScrollController = new ScrollController("#scrollframes", myFrameScroller);
-  
+  setupDOM();
+  setupHandlers();
   var framesId = "#scrollframes";
+  var progressId = "#progressDiv";
+  // init FrameScroller object
+  myFrameScroller = new FrameScroller(framesId, 10, progressId);
+  // init ScrollController object
+  myScrollController = new ScrollController(framesId, myFrameScroller);
   
+
+  // debug
+  $(window).bind('keypress', function(e) {
+
+    console.log("keypressed");
+    var code = (e.keyCode ? e.keyCode : e.which);
+    if(code == 112) { // "p"
+      myFrameScroller.setFPS(2);
+    };
+    if(code == 115) { // "s"
+      myFrameScroller.setFPS(0);
+    };
+
+  });
+  // console.log("body after: ", $("body").children());
 }
 
-function setupDOM (options) {
-  var wrapper = $("#wrapper");
+function setupDOM () {
+  var wrapperId = "#wrapper";
+  
+  $(wrapperId).empty();
+  
+  // Frames
+  loadFrames(wrapperId);
 
   // Progress bar
 	if( options.progress ) {
-		wrapper.append('<div class="progressDiv"><span></span></div>');
+    console.log("found progress");
+		loadProgress(wrapperId);
 	}
-	
-	// window.resize handler
-	$(window).resize(function() {
-    console.log('$(window).width(): ', $(window).width());
-    scaleFrames();
-  });
-  
-  // $(window).resize(function() {
-  //   $('body').prepend('<div>' + $(window).width() + '</div>');
-  //   console.log('Handler for .resize() called');
-  // });
 	
 }
 
-// reset size of frame div
-function scaleFrames() {
-  // TODO; work like reload on resize
-  $("#scrollframes").css("width", $window.width());
+function setupHandlers () {
+  // window.resize handler
+  $(window).resize(function() {
+    console.log('$(window).width(): ', $(window).width());
+    scaleFrames();
+  });
+}
+
+function loadFrames (wrapperId) {
+  // $("#scrollframes").remove();
+  $(wrapperId).prepend('<div id="scrollframes"></div>');
+
+  // CSS;
+  $("#scrollframes").css("background", "transparent url(img/pilot_sequence/sprites/10x_128_72_ball.png) 0 0 no-repeat");
+  $("#scrollframes").css("position", "fixed");
+  
+  $("#scrollframes").css("top", "0px");
+  $("#scrollframes").css("left", "0px");
+
+  $("#scrollframes").css("width", "100%");
   $("#scrollframes").css("height", "100%");
   $("#scrollframes").css("background-size", "1000%, 1000%");
+  
+
+  $("#scrollframes").css("z-index", "100");
+  $("#scrollframes").css("cursor", "pointer");
+
+}
+
+function loadProgress (wrapperId) {
+  console.log("now loading progress");
+  $(wrapperId).append('<div class="progressDiv"><span></span></div>');
+}
+
+// reset size of frame div to fit window width
+function scaleFrames() {
+  // TODO; work like reload on resize
+
+  var wrapperId = "#wrapper";
+  var framesId = "#scrollframes";
+  var progressId = "#progressDiv";
+
+  $("#scrollframes").destroy();
+  $(wrapperId).empty();
+  
+  // Frames
+  loadFrames(wrapperId);
+
+  // Progress bar
+  if( options.progress ) {
+    console.log("found progress");
+    loadProgress(wrapperId);
+  };  
+
+  // init FrameScroller object
+  myFrameScroller = new FrameScroller(framesId, 10, progressId);
+  // init ScrollController object
+  myScrollController = new ScrollController(framesId, myFrameScroller);
+
+
 }
 
 
 // define FrameScoller class
 function FrameScroller (targetId, no_of_frames, progressId) {
   _self = this;
-  // construct FrameScroller
   this.targetId = targetId;
-  this.frameTarget = $(targetId);
+  // this.frameTarget = $(targetId);
   this.no_of_frames = no_of_frames;
   this.frameNumber = 0;
   this.progress = $(progressId);
   this.fps = 0;
   this.getOnFrameEvents = getOnFrameEvents;
   this.getEventFunction = getEventFunction;
-  this.frameTarget.sprite({
-	  fps: this.fps,
-	  no_of_frames: this.no_of_frames,
-	  on_frame: this.getOnFrameEvents()
-	});
+  this.constructSprite = constructSprite;
+
+  this.constructSprite();
   
   console.log("FrameScroller initiated");
   
+  function constructSprite () {
+    this.frameTarget = $(_self.targetId);
+    this.frameTarget.sprite({
+      fps: _self.fps,
+      no_of_frames: _self.no_of_frames,
+      on_frame: _self.getOnFrameEvents()
+    });
+  };
+
   function getOnFrameEvents () {
     var on_frame = {};
     for (var i = 0; i < this.no_of_frames; i++) {
@@ -86,12 +162,13 @@ function FrameScroller (targetId, no_of_frames, progressId) {
     return function () {
       // console.log("***now at: ", i.toString());
       _self.updateFrameNumber(i);
+      console.log("now at:", i);
     };
   };
   
   // define methods
   this.testFunction = function () {
-    console.log("TESTTESTTESTTESTTESTTEST");
+    console.log("testFunction");
   };
   
   this.updateFrameNumber = function (frameNumber) {
@@ -141,11 +218,10 @@ function ScrollController (controlId, targetFrameScroller) {
   this.scrollOutDelay = 500;
   this.decayFactor = 0.6;
   
-  
-  $(this.controlId).mousewheel(function(event, delta, deltaX, deltaY) {
-      _self.mousewheelHandler(event, delta, deltaX, deltaY);
+  $(_self.controlId).mousewheel(function(event, delta, deltaX, deltaY) {
+    _self.mousewheelHandler(event, delta, deltaX, deltaY);
   });
-  
+
   // Get and set Delta (X and Y)
   this.getDelta = function () {
     return this.delta;
