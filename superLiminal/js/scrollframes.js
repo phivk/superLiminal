@@ -118,6 +118,9 @@ function scaleFrames() {
 function FrameScroller (targetId, no_of_frames, progressClass) {
   _self = this;
   this.targetId = targetId;
+  // TODO
+  // this.sprite =  $._spritely.instances[el_id]
+
   // this.frameTarget = $(targetId);
   this.no_of_frames = no_of_frames;
   this.frameNumber = 0;
@@ -194,9 +197,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
         $(".progressDiv span").css( "width", new_width );  
       };
     };
-  };
-
-  
+  };  
 
   // Start and then stop sprite to show updated view
   this.updateView = function () {
@@ -206,7 +207,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       _self.frameTarget.spStop();
       // set back frame to prevent unwanted advance
       _self.setFrameNumber(curFrame);
-    }, 20);
+    }, 10);
   }
 
   
@@ -219,6 +220,13 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   };
   
   this.setFPS = function (fps) {
+    console.log("setting fps: ", fps);
+    if (fps < 0) {
+      $._spritely.instances[_self.targetId]['options'].rewind = true;
+    }
+    else {
+      $._spritely.instances[_self.targetId]['options'].rewind = false;
+    }
     this.fps = fps;
     // TODO set sprite direction
     this.frameTarget.fps(Math.abs(this.fps));
@@ -228,6 +236,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   // advance sprite by n frames (n can be negative)
   this.advance = function (n) {
     if ($._spritely.instances[_self.targetId]) {
+      _self.setFPS(0);
       var nextFrame = _self.getFrameNumber() + n;
       if (nextFrame > _self.no_of_frames - 1) {
         nextFrame = 0;
@@ -355,11 +364,15 @@ function KeyController (targetFrameScroller) {
   var _self = this;
   this.targetFrameScroller = targetFrameScroller;
   
-  $(window).bind('keypress', function(e) {
-    _self.keypressHandler(e);
+  // $(window).bind('keypress', function(e) {
+  //   _self.keydownHandler(e);
+  // });
+
+  $(window).keydown(function(e) {
+    _self.keydownHandler(e);
   });
 
-  this.keypressHandler = function (e) {
+  this.keydownHandler = function (e) {
     
     var code = (e.keyCode ? e.keyCode : e.which);
     console.log("KEY pressed in handler: ", code);
@@ -370,7 +383,7 @@ function KeyController (targetFrameScroller) {
       _self.targetFrameScroller.advance(-1);
     };
 
-    if(code == 102) { // "f"
+    if(code == 70) { // "f"
       console.log(_self.targetFrameScroller.getFrameNumber());
     };
 
