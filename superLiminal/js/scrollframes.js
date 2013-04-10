@@ -1,120 +1,148 @@
 // TODO
-// contact Sebastian re reverse sprite direction
+// * fullscreen
+// * reverse
+// * hi res images
+// * layout progressbar
+var myFrameScroller;
+var myScrollController;
+var options;
+
 document.addEventListener("DOMContentLoaded", function () {  
   start();
-  
-  //  (function($) {
-  //  $(document).ready(function() {
-  // 
-  //    $('#bird')
-  //      .sprite({fps: 9, no_of_frames: 3})
-  //         .spRandom({top: 50, bottom: 200, left: 300, right: 320})
-  //      .isDraggable()
-  //         .activeOnClick()
-  //         .active();               
-  //       // $('#scrollframes')
-  //       //        .sprite({fps: 6, no_of_frames: 10})
-  //         // .activeOnClick()
-  //         // .active();
-  //    window.actions = {
-  //      
-  //      fly_slowly_forwards: function() {
-  //        $('#bird')
-  //          .fps(10)
-  //          .spState(1);
-  //      },
-  //      fly_slowly_backwards: function() {
-  //        $('#bird')
-  //          .fps(10)
-  //          .spState(2);
-  //      },
-  //      fly_quickly_forwards: function() {
-  //        $('#bird')
-  //          .fps(20)
-  //          .spState(1);
-  //      },
-  //      fly_quickly_backwards: function() {
-  //        $('#bird')
-  //          .fps(20)
-  //          .spState(2);
-  //      },
-  //      fly_like_lightning_forwards: function() {
-  //        $('#bird')
-  //          .fps(25)
-  //          .spState(1);
-  //      },
-  //      fly_like_lightning_backwards: function() {
-  //        $('#bird')
-  //          .fps(25)
-  //          .spState(2);
-  //      }
-  //    };
-  // 
-  //    window.page = {
-  //      hide_panels: function() {
-  //        $('.panel').hide(300);
-  //      },
-  //      show_panel: function(el_id) {
-  //        this.hide_panels();
-  //        $(el_id).show(300);
-  //      }
-  //    }
-  // 
-  //  });
-  // })(jQuery);
-	
-	
 }, false);
 
 
 function start () {
-  var options = {
+  // console.log("body before: ", $("body").children());
+  var wrapperId = "wrapper";
+  var framesId = "scrollframes";
+  var progressClass = "progressDiv";
+
+  options = {
     progress: true,
   }
   
-  setupDOM(options);
+  setupDOM(wrapperId, framesId, progressClass);
+  setupHandlers();
   
   // init FrameScroller object
-  var myFrameScroller = new FrameScroller("#scrollframes", 10, "#progressDiv");
-  var myScrollController = new ScrollController("#scrollframes", myFrameScroller);
-  
-  var framesId = "#scrollframes";
-  
+  myFrameScroller = new FrameScroller(framesId, 10, progressClass);
+  // init ScrollController object
+  myScrollController = new ScrollController(framesId, myFrameScroller);
+  myKeyController = new KeyController (myFrameScroller);
+
+  // debug
+  // $(window).bind('keypress', function(e) {
+
+  //   console.log("keypressed");
+  //   var code = (e.keyCode ? e.keyCode : e.which);
+  //   if(code == 112) { // "p"
+  //     myFrameScroller.setFPS(2);
+  //   };
+  //   if(code == 115) { // "s"
+  //     myFrameScroller.setFPS(0);
+  //   };
+
+  // });
+  // console.log("body after: ", $("body").children());
 }
 
-function setupDOM (options) {
-  var wrapper = $("#wrapper");
+function setupDOM (wrapperId, framesId, progressClass) {  
+  // Frames
+  loadFrames(wrapperId, framesId);
+  setFrameCSS(framesId);
 
   // Progress bar
 	if( options.progress ) {
-		wrapper.append('<div class="progressDiv"><span></span></div>');
+		loadProgress(wrapperId, progressClass);
 	}
 	
 }
 
+function setupHandlers () {
+  // window.resize handler
+  $(window).resize(function() {
+    console.log('$(window).width(): ', $(window).width());
+    scaleFrames();
+  });
+}
+
+function loadFrames (wrapperId, framesId) {
+  // $(wrapperId).prepend('<div id="'+framesId+'"></div>');
+  $("#"+wrapperId).prepend('<div id="scrollframes"></div>');
+  console.log("prepended: ", '<div id="'+framesId+'"></div>');
+}
+
+function setFrameCSS (framesId) {
+  // setting background image can be disabled, but leads to half visible frames
+  // during resizing
+  $("#"+framesId).css("background", "transparent url(img/pilot_sequence/sprites/10x_128_72_ball.png) 0 0 no-repeat");
+  // TODO make bg-size percentage dynamic to num_of_frames
+  $("#"+framesId).css("background-size", "1000%, 1000%");
+}
+
+function loadProgress (wrapperId, progressClass) {
+  // $("#"+wrapperId).append('<div class="'+progressClass+'"><span></span></div>');
+  $("#"+wrapperId).append('<div class="'+progressClass+'"><span></span></div>');
+}
+
+// reset size of frame div to fit window width
+function scaleFrames() {
+  var wrapperId = "wrapper";
+  var framesId = "scrollframes";
+  var progressClass = "progressDiv";
+
+  $("#"+framesId).destroy();
+  // $("#"+wrapperId).empty();
+  
+  // // Frames
+  // loadFrames(wrapperId, framesId);
+  setFrameCSS(framesId);
+
+  // Progress bar
+  if( options.progress ) {
+    console.log("found progress");
+    loadProgress(wrapperId, progressClass);
+  };  
+
+  // init FrameScroller object
+  myFrameScroller = new FrameScroller(framesId, 10, progressClass);
+  // init ScrollController object
+  myScrollController = new ScrollController(framesId, myFrameScroller);
 
 
+}
 
-// define FrameScoller class
-function FrameScroller (targetId, no_of_frames, progressId) {
+
+// define FrameScoller prototype
+function FrameScroller (targetId, no_of_frames, progressClass) {
   _self = this;
-  // construct FrameScroller
   this.targetId = targetId;
-  this.frameTarget = $(targetId);
+  // this.frameTarget = $(targetId);
   this.no_of_frames = no_of_frames;
   this.frameNumber = 0;
-  this.progress = $(progressId);
+  this.progress = $("#"+progressClass);
   this.fps = 0;
   this.getOnFrameEvents = getOnFrameEvents;
   this.getEventFunction = getEventFunction;
-  this.frameTarget.sprite({
-	  fps: this.fps,
-	  no_of_frames: this.no_of_frames,
-	  on_frame: this.getOnFrameEvents()
-	});
+  this.constructSprite = constructSprite;
+  this.getFrameNumber = getFrameNumber;
+  this.setFrameNumber = setFrameNumber;
+
+  this.constructSprite();
+  // this.setFrameNumber(0);
   
   console.log("FrameScroller initiated");
   
+  function constructSprite () {
+    this.frameTarget = $("#"+_self.targetId);
+    this.frameTarget.sprite({
+      fps: _self.fps,
+      no_of_frames: _self.no_of_frames,
+      on_frame: _self.getOnFrameEvents()
+    });
+  };
+
   function getOnFrameEvents () {
     var on_frame = {};
     for (var i = 0; i < this.no_of_frames; i++) {
@@ -125,29 +153,62 @@ function FrameScroller (targetId, no_of_frames, progressId) {
   
   function getEventFunction (i) {
     return function () {
-      // console.log("***now at: ", i.toString());
       _self.updateFrameNumber(i);
     };
   };
-  
-  // define methods
-  this.testFunction = function () {
-    console.log("TESTTESTTESTTESTTESTTEST");
+
+  // get current frameNumber of sprite
+  function getFrameNumber () {
+    if ($._spritely.instances[_self.targetId]) {
+      var frameNumber = $._spritely.instances[_self.targetId]['current_frame'];
+      var realFrameNumber = frameNumber + 1;
+      if (realFrameNumber > _self.no_of_frames - 1) {
+        realFrameNumber = 0;
+      };
+      return realFrameNumber;
+    };
+  };
+
+  // set current frameNumber of sprite
+  function setFrameNumber (n) {
+    if ($._spritely.instances[_self.targetId]) {
+      $._spritely.instances[_self.targetId]['current_frame'] = n-1;
+    };    
   };
   
+  // TODO consider deleting; instead use $._spritely.instances[_self.targetId]['current_frame']
   this.updateFrameNumber = function (frameNumber) {
     this.frameNumber = frameNumber;
+    // TODO FIX this doesn't get called for advance from last frame to first frame
     this.updateProgress(frameNumber);
   };
   
   this.updateProgress = function (currentFrameNumber) {
     if ( this.progress ) {
       // calc new width of progressbar
-      var new_width = ( currentFrameNumber / ( _self.no_of_frames - 1) ) * window.innerWidth + 'px';      
-      // update progressbar
-      $(".progressDiv span").css( "width", new_width );
+      console.log("this.getFrameNumber(): ", this.getFrameNumber());
+      if (this.getFrameNumber() >= 0) {
+        console.log("update!");
+        var new_width = ( this.getFrameNumber() / ( _self.no_of_frames - 1) ) * window.innerWidth + 'px';      
+        // update progressbar width
+        $(".progressDiv span").css( "width", new_width );  
+      };
     };
   };
+
+  
+
+  // Start and then stop sprite to show updated view
+  this.updateView = function () {
+    var curFrame = _self.getFrameNumber();
+    _self.frameTarget.spStart();
+    setTimeout(function () {
+      _self.frameTarget.spStop();
+      // set back frame to prevent unwanted advance
+      _self.setFrameNumber(curFrame);
+    }, 20);
+  }
+
   
   this.gettargetId = function () {
     return this.targetId;
@@ -160,14 +221,28 @@ function FrameScroller (targetId, no_of_frames, progressId) {
   this.setFPS = function (fps) {
     this.fps = fps;
     // TODO set sprite direction
-    // contact Sebastian re sprites with two directions
     this.frameTarget.fps(Math.abs(this.fps));
     // console.log("fps set:", fps);
   };
-  
+
+  // advance sprite by n frames (n can be negative)
+  this.advance = function (n) {
+    if ($._spritely.instances[_self.targetId]) {
+      var nextFrame = _self.getFrameNumber() + n;
+      if (nextFrame > _self.no_of_frames - 1) {
+        nextFrame = 0;
+      }
+      else if (nextFrame < 0 ) {
+        nextFrame = _self.no_of_frames - 1;
+      };
+
+      _self.setFrameNumber(nextFrame);
+      this.updateView();
+    };
+  };  
 };
 
-// define ScrollController class
+// define ScrollController prototype
 function ScrollController (controlId, targetFrameScroller) {
   // construct ScrollController
   var _self = this;
@@ -182,11 +257,10 @@ function ScrollController (controlId, targetFrameScroller) {
   this.scrollOutDelay = 500;
   this.decayFactor = 0.6;
   
-  
-  $(this.controlId).mousewheel(function(event, delta, deltaX, deltaY) {
-      _self.mousewheelHandler(event, delta, deltaX, deltaY);
+  $("#"+_self.controlId).mousewheel(function(event, delta, deltaX, deltaY) {
+    _self.mousewheelHandler(event, delta, deltaX, deltaY);
   });
-  
+
   // Get and set Delta (X and Y)
   this.getDelta = function () {
     return this.delta;
@@ -275,3 +349,31 @@ function ScrollController (controlId, targetFrameScroller) {
 };
 
 
+// define KeyController prototype
+function KeyController (targetFrameScroller) {
+  // construct ScrollController
+  var _self = this;
+  this.targetFrameScroller = targetFrameScroller;
+  
+  $(window).bind('keypress', function(e) {
+    _self.keypressHandler(e);
+  });
+
+  this.keypressHandler = function (e) {
+    
+    var code = (e.keyCode ? e.keyCode : e.which);
+    console.log("KEY pressed in handler: ", code);
+    if(code == 39 || code == 40) { // "RIGHT ARROW or DOWN ARROW"
+      _self.targetFrameScroller.advance(1);
+    };
+    if(code == 37 || code == 48) { // "LEFT ARROW or UP ARROW"
+      _self.targetFrameScroller.advance(-1);
+    };
+
+    if(code == 102) { // "f"
+      console.log(_self.targetFrameScroller.getFrameNumber());
+    };
+
+
+  };   
+};
