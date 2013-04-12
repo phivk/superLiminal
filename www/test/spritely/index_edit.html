@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="eng" lang="eng">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Spritely 0.4 Examples</title>
+	<meta name="keywords" content="" />
+	<meta name="generator" content="ArchimedesCMS from Artlogic - http://www.artlogic.net/" />
+	<meta name="viewport" content="width = 320" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	
+	<link rel="stylesheet" type="text/css" href="styles/main.css" />
+	
+	<style type="text/css">
+		#bird {
+			background: transparent url(images/bird-forward-back.png) 0 0 no-repeat;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			width: 180px;
+			height: 123px;
+			z-index: 2000;
+			cursor: pointer;
+		}
+
+		#sprite {
+			background: transparent url(images/seq_01_7x15_low_res-0.jpg) 0 0 no-repeat;
+			position: absolute;
+			top: 200px;
+			left: 0px;
+			width: 384px;
+			height: 216px;
+			z-index: 2000;
+			cursor: pointer;
+		}
+	</style>
+	
+	<!-- IE6 fixes are found in styles/ie6.css -->
+	<!--[if lte IE 6]><link rel="stylesheet" type="text/css" href="styles/ie6.css" /><![endif]-->
+	
+	<script src="scripts/jquery-1.3.2.min.js" type="text/javascript"></script>
+	<script src="scripts/jquery-ui-1.7.2.spritely.custom.min.js" type="text/javascript"></script>
+	<script src="scripts/jquery.spritely-0.4.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+		(function($) {
+			$(document).ready(function() {
+			
+				$('#bird')
+					.sprite({
+						fps: 9, 
+						no_of_frames: 3,
+						on_first_frame: function(obj) {
+							console.log("first frame");
+					        obj.spState(1); // change to state 1 (first row) on frame 1
+					    }, 
+					    on_last_frame: function(obj) {
+					    	console.log("last frame");
+					        obj.spStop(); // stop the animation on the last frame
+					    },
+
+					    on_frame: { // note - on_frame is an object not a function
+					        2: function() { // called on frame 8
+					            console.log("on frame");
+					            // obj.spState(2); // change to state 2 (row 2) on frame 8
+					        },
+					        // 16: function(obj) { // called on frame 16
+					        //     obj.spState(3); // change to state 3 (row 3) on frame 16
+					        // }
+					    }
+					})
+					// .spRandom({top: 50, bottom: 200, left: 300, right: 320})
+					// .isDraggable()
+					// .activeOnClick()
+					.active();
+
+				// $('#sprite')
+				// 	.sprite({
+				// 		fps: 9, 
+				// 		no_of_frames: 3
+				// 		on_frame: { // note - on_frame is an object not a function
+				// 	        3: function(obj) { // called on frame 8
+				// 	            console.log("now at frame 7");
+				// 	            obj.spState(2); // change to state 2 (row 2) on frame 8
+				// 	        }
+				// 	    }
+				// 	})
+				// 	// .spRandom({top: 50, bottom: 200, left: 300, right: 320})
+				// 	// .isDraggable()
+				// 	// .activeOnClick()
+				// 	.active();
+
+			});
+		})(jQuery);
+	
+	</script>
+</head>
+<body>
+<div id="container">
+	<div id="bird"></div>
+	<div id="sprite"></div>
+</div>
+
+</body>
+</html>

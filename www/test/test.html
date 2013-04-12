@@ -1,0 +1,102 @@
+<html>
+<head>
+
+<script language="JavaScript">
+
+// array of "normal state" images
+var normalImages = new Array('images/image1n.gif', 'images/image2n.gif', 'images/image3n.gif', 'images/image4n.gif');
+
+// array of "hover state" images
+var hoverImages = new Array('images/image1h.gif', 'images/image2h.gif', 'images/image3h.gif', 'images/image4h.gif');
+
+// array of "click state" images
+var clickImages = new Array('images/image1c.gif', 'images/image2c.gif', 'images/image3c.gif', 'images/image4c.gif');
+
+// this function is called on page load
+// it preloads all the hover and click images
+// for faster swap response time
+function preloadImages() 
+{
+  var i=0;
+
+  objImage = new Image();
+
+  for (i=1; i<=hoverImages.length; i++)
+  {
+    objImage.src = hoverImages[i];
+  }
+
+  for (i=1; i<=clickImages.length; i++)
+  {
+    objImage.src = clickImages[i];
+  }
+
+}
+
+// this function resets all the images to their "normal" state // used when clicking on an image, to reset all images 
+function resetAll()
+{
+  for (i=1; i<=normalImages.length; i++)
+  {
+    obj = eval('document.image' + i);
+    obj.src = normalImages[i-1];
+  }
+
+}
+
+// used on mouseover
+// swap the named image into "hover" state
+// but only if it is not already in "click" state
+function setHover(num)
+{
+  obj = eval('document.image' + num);
+  str = obj.src;
+
+  if (str.search(clickImages[num-1]) == -1)
+  {
+    obj.src = hoverImages[num-1];
+  }
+}
+
+// swap the named image into "click" state
+// previously clicked images must go back to "normal" state first function setClick(num) {
+  resetAll();
+  obj = eval('document.image' + num);
+  obj.src = clickImages[num-1];
+}
+
+// used on mouseout
+// swap the named image into "normal" state
+// but only if it is not already in "click" state
+function setNormal(num)
+{
+  obj = eval('document.image' + num);
+  str = obj.src;
+
+  if (str.search(clickImages[num-1]) == -1)
+  {
+    obj.src = normalImages[num-1];
+  }
+}
+</script>
+
+</head>
+
+<body onLoad="javascript:preloadImages();">
+
+<a href="#" onMouseOver="setHover(1)" onMouseOut="setNormal(1)" onClick="setClick(1)"><img name="image1" src="images/image1n.gif" width=100 height=25></a>
+
+<p>
+
+<a href="#" onMouseOver="setHover(2)" onMouseOut="setNormal(2)" onClick="setClick(2)"><img name="image2" src="images/image2n.gif" width=100 height=25></a>
+
+<p>
+
+<a href="#" onMouseOver="setHover(3)" onMouseOut="setNormal(3)" onClick="setClick(3)"><img name="image3" src="images/image3n.gif" width=100 height=25></a>
+
+<p>
+
+<a href="#" onMouseOver="setHover(4)" onMouseOut="setNormal(4)" onClick="setClick(4)"><img name="image4" src="images/image4n.gif" width=100 height=25></a>
+
+</body>
+</html>

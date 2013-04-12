@@ -22,41 +22,27 @@ function start () {
     progress: true,
   }
   
+  // setup
   setupDOM(wrapperId, framesId, progressClass);
   setupHandlers();
   
-  // init FrameScroller object
-  myFrameScroller = new FrameScroller(framesId, 10, progressClass);
-  // init ScrollController object
+  // init FrameScroller & Controller objects
+  myFrameScroller = new FrameScroller(framesId, 7, progressClass);
   myScrollController = new ScrollController(framesId, myFrameScroller);
   myKeyController = new KeyController (myFrameScroller);
 
-  // debug
-  // $(window).bind('keypress', function(e) {
-
-  //   console.log("keypressed");
-  //   var code = (e.keyCode ? e.keyCode : e.which);
-  //   if(code == 112) { // "p"
-  //     myFrameScroller.setFPS(2);
-  //   };
-  //   if(code == 115) { // "s"
-  //     myFrameScroller.setFPS(0);
-  //   };
-
-  // });
-  // console.log("body after: ", $("body").children());
+  myFrameScroller.setFrameCSS();
 }
 
 function setupDOM (wrapperId, framesId, progressClass) {  
   // Frames
   loadFrames(wrapperId, framesId);
-  setFrameCSS(framesId);
+  // setFrameCSS(framesId);
 
   // Progress bar
 	if( options.progress ) {
 		loadProgress(wrapperId, progressClass);
 	}
-	
 }
 
 function setupHandlers () {
@@ -70,15 +56,6 @@ function setupHandlers () {
 function loadFrames (wrapperId, framesId) {
   // $(wrapperId).prepend('<div id="'+framesId+'"></div>');
   $("#"+wrapperId).prepend('<div id="scrollframes"></div>');
-  console.log("prepended: ", '<div id="'+framesId+'"></div>');
-}
-
-function setFrameCSS (framesId) {
-  // setting background image can be disabled, but leads to half visible frames
-  // during resizing
-  $("#"+framesId).css("background", "transparent url(img/pilot_sequence/sprites/10x_128_72_ball.png) 0 0 no-repeat");
-  // TODO make bg-size percentage dynamic to num_of_frames
-  $("#"+framesId).css("background-size", "1000%, 1000%");
 }
 
 function loadProgress (wrapperId, progressClass) {
@@ -92,25 +69,25 @@ function scaleFrames() {
   var framesId = "scrollframes";
   var progressClass = "progressDiv";
 
+  // destroy sprite animation
   $("#"+framesId).destroy();
-  // $("#"+wrapperId).empty();
   
-  // // Frames
-  // loadFrames(wrapperId, framesId);
-  setFrameCSS(framesId);
+  // Frames
+  myFrameScroller.setFrameCSS();
+  myFrameScroller.constructSprite();
 
   // Progress bar
   if( options.progress ) {
     console.log("found progress");
+    // loadProgress to reset progress bar
     loadProgress(wrapperId, progressClass);
   };  
 
+  // deprecated: not necessary
   // init FrameScroller object
-  myFrameScroller = new FrameScroller(framesId, 10, progressClass);
+  // myFrameScroller = new FrameScroller(framesId, 7, progressClass);
   // init ScrollController object
-  myScrollController = new ScrollController(framesId, myFrameScroller);
-
-
+  // myScrollController = new ScrollController(framesId, myFrameScroller);
 }
 
 
@@ -131,12 +108,65 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   this.constructSprite = constructSprite;
   this.getFrameNumber = getFrameNumber;
   this.setFrameNumber = setFrameNumber;
+  this.preloadSeqs = preloadSeqs;
+  this.preloadSeq = preloadSeq;
+  this.setFrameCSS = setFrameCSS;
 
+  this.sequences = {
+    1: {
+      spriteFolder: "img/pilot_sequence/sprites/seq_01_7x15_low_res/",
+      spritePrefix: "seq_01_7x15_low_res-",
+      spriteExtension: ".jpg",
+      no_of_sprites: 3,
+      // TODO add end frame property
+    }
+  };
+
+  this.preloadSeqs();
+
+  // addLoadEvent(preloadSeqs);
   this.constructSprite();
   // this.setFrameNumber(0);
   
   console.log("FrameScroller initiated");
   
+  // http://www.techrepublic.com/article/preloading-and-the-javascript-image-object/5214317
+  // preload all sequences by passing them to preloadSeq(seq)
+  function preloadSeqs () {
+    // var cssContentString = "";
+    for (var seqNumber in _self.sequences) {
+      var seq = _self.sequences[seqNumber];
+      preloadSeq(seq);
+    };
+    console.log("preload finished");
+  }
+
+  // preload all sprite images for sequence [seq]
+  function preloadSeq (seq) {
+    imageObj = new Image();
+    imageSources = new Array();
+    for (var i = 0; i < seq.no_of_sprites; i++) {
+      var imgSrcString = seq.spriteFolder + seq.spritePrefix + i + seq.spriteExtension;
+      // set images source list
+      imageSources[i] = imgSrcString;
+      // preload image
+      imageObj.src = imageSources[i];
+    };
+  };
+
+  function setFrameSprite (spriteSrc) {
+    $("#"+framesId).css("background", "transparent url("+spriteSrc+") 0 0 no-repeat");
+    // TODO make bg-size percentage dynamic to num_of_frames
+    $("#"+framesId).css("background-size", "1000%, 1000%");
+  }
+
+  function loadSequenceFrames (wrapperId, framesId) {
+
+
+    $("#"+wrapperId).prepend('<div id="scrollframes"></div>');
+    console.log("prepended: ", '<div id="'+framesId+'"></div>');
+  };
+
   function constructSprite () {
     this.frameTarget = $("#"+_self.targetId);
     this.frameTarget.sprite({
@@ -155,7 +185,11 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   };
   
   function getEventFunction (i) {
-    return function () {
+    return function (obj) {
+      // TODO change spState to cascade through sprite levels vertically
+      // if (i == 5 ) {
+      //   obj.spState(2); // change to state 2 (row 2) on frame 8
+      // };
       _self.updateFrameNumber(i);
     };
   };
@@ -178,6 +212,16 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       $._spritely.instances[_self.targetId]['current_frame'] = n-1;
     };    
   };
+
+  function setFrameCSS () {
+    // setting background image can be disabled, but leads to half visible frames
+    // during resizing
+    // $("#"+framesId).css("background", "transparent url(img/pilot_sequence/sprites/10x_128_72_ball.png) 0 0 no-repeat");
+    $("#"+_self.targetId).css("background", "transparent url(img/pilot_sequence/sprites/seq_01_7x15_low_res/seq_01_7x15_low_res-0.jpg) 0 0 no-repeat");
+    // TODO make bg-size percentage dynamic to num_of_frames
+    var bgSizeValueString = String(_self.no_of_frames*100) + "%, " + String(_self.no_of_frames*100) + "%"
+    $("#"+_self.targetId).css("background-size", bgSizeValueString);
+  }
   
   // TODO consider deleting; instead use $._spritely.instances[_self.targetId]['current_frame']
   this.updateFrameNumber = function (frameNumber) {
@@ -189,9 +233,8 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   this.updateProgress = function (currentFrameNumber) {
     if ( this.progress ) {
       // calc new width of progressbar
-      console.log("this.getFrameNumber(): ", this.getFrameNumber());
+      // console.log("this.getFrameNumber(): ", this.getFrameNumber());
       if (this.getFrameNumber() >= 0) {
-        console.log("update!");
         var new_width = ( this.getFrameNumber() / ( _self.no_of_frames - 1) ) * window.innerWidth + 'px';      
         // update progressbar width
         $(".progressDiv span").css( "width", new_width );  
@@ -220,7 +263,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   };
   
   this.setFPS = function (fps) {
-    console.log("setting fps: ", fps);
+    // console.log("setting fps: ", fps);
     if (fps < 0) {
       $._spritely.instances[_self.targetId]['options'].rewind = true;
     }
