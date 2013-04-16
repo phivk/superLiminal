@@ -208,7 +208,10 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
           }
           // console.log("FORWARD now setting row to: ", nextRow);
           // console.log("moving height: ", $(window).height());
-          obj.spStateHeight(nextRow, $(window).height());
+          console.log("bgsize: ", $("#scrollframes").css("background-size"));
+
+          // obj.spStateHeight(nextRow, $(window).height());
+          obj.spStateHeight(nextRow, _self.displayHeight);
           _self.spriteRow = nextRow;  
         }
       }
@@ -264,12 +267,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   };
 
   function setFrameCSS () {
-    
-    // TODO NOW
-
-    // $("#"+framesId).css("background", "transparent url(img/pilot_sequence/sprites/10x_128_72_ball.png) 0 0 no-repeat");
     $("#"+_self.targetId).css("background", "transparent url(img/pilot_sequence/sprites/seq_01_7x15_low_res/seq_01_7x15_low_res-0_numbers.jpg) 0 0 no-repeat");
-    // TODO resize vertically. -> then move to scaleFrames
 
     // windowfit
     var windowWidth = $(window).width();
@@ -284,16 +282,23 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     // console.log("windowRatio: ", windowRatio);
     if (windowRatio > frameRatio) {
       // scale to fit width
-      console.log("fit width");
       // var bgSizeValueString = String(_self.curSequence.spriteColumns*100) + "%, " + String(_self.curSequence.spriteColumns*100) + "%"
       var bgSizeValueString = String(_self.curSequence.spriteColumns*100) + "% " + "auto"
-      $("#"+_self.targetId).css("background-size", bgSizeValueString);      
+      $("#"+_self.targetId).css("background-size", bgSizeValueString);
+
+      // set display dimensions
+      _self.displayHeight = _self.curSequence.frameHeight * $(window).width() / _self.curSequence.frameWidth;
+      _self.displayWidth = $(window).width();
     }
     else{
       // scale to fit height
       // var scalePercentage = 100 * windowHeight/frameHeight;
       var bgSizeValueString = "auto " + String(_self.curSequence.spriteRows * 100) + "%" //, " + String(scalePercentage) + "%"
       $("#"+_self.targetId).css("background-size", bgSizeValueString);
+
+      // set display dimensions
+      _self.displayHeight = $(window).height();
+      _self.displayWidth = _self.curSequence.frameWidth * $(window).height() / _self.curSequence.frameHeight;
     };
   }
   
