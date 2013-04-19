@@ -76,6 +76,10 @@
                 var frames;
                 var animate = function(el) {
                     var w = options.width, h = options.height;
+                    
+                    // DEBUG
+                    console.log("w in animate: ", w);
+
                     if (!frames) {
                         frames = [];
                         total = 0
@@ -486,6 +490,18 @@
                 // change state of a sprite, where state is the vertical
                 // position of the background image (e.g. frames row)
                 var yPos = ((n - 1) * $(this).height()) + 'px';
+                var xPos = $._spritely.getBgX($(this));
+                var bp = xPos + ' -' + yPos;
+                $(this).css('background-position', bp);
+            });
+            return this;
+        },
+        // NB Added by Philo van Kemenade to support supplying height
+        spStateHeight: function(n, height) {
+            $(this).each(function() {
+                // change state of a sprite, where state is the vertical
+                // position of the background image (e.g. frames row)
+                var yPos = ((n - 1) * height) + 'px';
                 var xPos = $._spritely.getBgX($(this));
                 var bp = xPos + ' -' + yPos;
                 $(this).css('background-position', bp);
