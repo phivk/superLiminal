@@ -75,7 +75,20 @@ function scaleFrames() {
   
   // Frames
   myFrameScroller.setFrameCSS();
+  // TODO consider constructing sprite anew necessary?
   myFrameScroller.constructSprite();
+
+  // Set sprite animation Width
+  // TODO NOW; make sure sprite.width is set to displayWidth for correct animation when scaled to fit height
+  // TODO move to setFrameCSS / FrameScroller method
+  // console.log("myFrameScroller.displayWidth: ", myFrameScroller.displayWidth);
+  // myFrameScroller.frameTarget.width = myFrameScroller.displayWidth;
+  // var aWidth = $._spritely.instances['scrollframes']['options'];
+  // var aRewind = $._spritely.instances['scrollframes']['options'].rewind;
+  // console.log(aRewind);
+
+
+
 
   // Progress bar
   if( options.progress ) {
@@ -89,20 +102,20 @@ function scaleFrames() {
 function FrameScroller (targetId, no_of_frames, progressClass) {
   _self = this;
   this.targetId = targetId;
+  this.frameTarget;
   
   // TODO
   // this.sprite =  $._spritely.instances[el_id]
+  // instead of $("#"+targetId)
 
-  // this.frameTarget = $(targetId);
   this.no_of_frames = no_of_frames;
-  
-  // deprecated
-  // this.frameNumber = 0;
-  
+    
   this.progress = $("#"+progressClass);
   this.fps = 0;
   // current state (row) of sprite
   this.spriteRow = 1;
+  this.displayWidth;
+  this.displayHeight;
 
   /// Methods
   // Setup
@@ -206,13 +219,8 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
           else {
             var nextRow = 1;
           }
-          // console.log("FORWARD now setting row to: ", nextRow);
-          // console.log("moving height: ", $(window).height());
-          console.log("bgsize: ", $("#scrollframes").css("background-size"));
-
-          // obj.spStateHeight(nextRow, $(window).height());
           obj.spStateHeight(nextRow, _self.displayHeight);
-          _self.spriteRow = nextRow;  
+          _self.spriteRow = nextRow;
         }
       }
       else {
@@ -226,7 +234,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
             var nextRow = _self.curSequence.spriteRows;
           }
           // console.log("BACKWARD now setting row to: ", nextRow);
-          obj.spStateHeight(nextRow, $(window).height());
+          obj.spStateHeight(nextRow, _self.displayHeight);
           _self.spriteRow = nextRow;  
         }
       };
@@ -338,6 +346,12 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     // console.log("setting fps: ", fps);
     if (fps < 0) {
       $._spritely.instances[_self.targetId]['options'].rewind = true;
+      // DEBUG TODO NOW
+      // console.log($._spritely.instances[_self.targetId]['options']);
+      console.log('width from options: ', _self.getAnimationWidth());
+      _self.setAnimationWidth(_self.displayWidth);
+      console.log('width from options after: ', _self.getAnimationWidth());
+
     }
     else {
       $._spritely.instances[_self.targetId]['options'].rewind = false;
@@ -347,6 +361,15 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     this.frameTarget.fps(Math.abs(this.fps));
     // console.log("fps set:", fps);
   };
+
+  this.setAnimationWidth = function (width) {
+    $._spritely.instances['scrollframes']['options']['width'] = width;
+  };
+  
+  this.getAnimationWidth = function () {
+    return $._spritely.instances['scrollframes']['options']['width'];
+  };
+  
 
   // advance sprite by n frames (n can be negative)
   this.advance = function (n) {
