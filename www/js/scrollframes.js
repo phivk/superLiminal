@@ -48,7 +48,7 @@ function setupDOM (wrapperId, framesId, progressClass) {
 function setupHandlers () {
   // window.resize handler
   $(window).resize(function() {
-    console.log('$(window).width(): ', $(window).width());
+    // console.log('$(window).width(): ', $(window).width());
     // console.log('$(window).height(): ', $(window).height());
     scaleFrames();
   });
@@ -78,17 +78,17 @@ function scaleFrames() {
   // TODO consider constructing sprite anew necessary?
   myFrameScroller.constructSprite();
 
+  // update display dimensions
+  // myFrameScroller.updateAnimationDims();
+
   // Set sprite animation Width
   // TODO NOW; make sure sprite.width is set to displayWidth for correct animation when scaled to fit height
   // TODO move to setFrameCSS / FrameScroller method
   // console.log("myFrameScroller.displayWidth: ", myFrameScroller.displayWidth);
   // myFrameScroller.frameTarget.width = myFrameScroller.displayWidth;
-  // var aWidth = $._spritely.instances['scrollframes']['options'];
+  // var spritelyWidth = $._spritely.instances['scrollframes']['options'].width;
   // var aRewind = $._spritely.instances['scrollframes']['options'].rewind;
-  // console.log(aRewind);
-
-
-
+  // console.log("spritelyWidth: ", spritelyWidth);
 
   // Progress bar
   if( options.progress ) {
@@ -286,11 +286,8 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     var frameRatio = frameWidth / frameHeight;
     var windowRatio = windowWidth / windowHeight;
 
-    // console.log("frameRatio: ", frameRatio);
-    // console.log("windowRatio: ", windowRatio);
     if (windowRatio > frameRatio) {
       // scale to fit width
-      // var bgSizeValueString = String(_self.curSequence.spriteColumns*100) + "%, " + String(_self.curSequence.spriteColumns*100) + "%"
       var bgSizeValueString = String(_self.curSequence.spriteColumns*100) + "% " + "auto"
       $("#"+_self.targetId).css("background-size", bgSizeValueString);
 
@@ -300,7 +297,6 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     }
     else{
       // scale to fit height
-      // var scalePercentage = 100 * windowHeight/frameHeight;
       var bgSizeValueString = "auto " + String(_self.curSequence.spriteRows * 100) + "%" //, " + String(scalePercentage) + "%"
       $("#"+_self.targetId).css("background-size", bgSizeValueString);
 
@@ -309,6 +305,17 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       _self.displayWidth = _self.curSequence.frameWidth * $(window).height() / _self.curSequence.frameHeight;
     };
   }
+
+  // update Animation Dimensions to reflect window fit resizing
+  // for now only width matters
+  this.updateAnimationDims = function () {
+    // console.log('width from options: ', _self.getAnimationWidth());
+    // console.log('displayWidth: ', _self.displayWidth);
+    if (_self.getAnimationWidth != _self.displayWidth) {
+      _self.setAnimationWidth(_self.displayWidth);  
+    };
+    // console.log('width from options after: ', _self.getAnimationWidth());
+  };
   
   this.updateProgress = function (currentFrameNumber) {
     if ( this.progress ) {
@@ -332,7 +339,6 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       _self.setFrameNumber(curFrame);
     }, 10);
   }
-
   
   this.gettargetId = function () {
     return this.targetId;
@@ -343,23 +349,17 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   };
   
   this.setFPS = function (fps) {
-    // console.log("setting fps: ", fps);
+    // update Animation Dims (not sure why ...['options'] is undefined in scaleFrames() )
+    // hack for now: works when called from here
+    _self.updateAnimationDims();
     if (fps < 0) {
       $._spritely.instances[_self.targetId]['options'].rewind = true;
-      // DEBUG TODO NOW
-      // console.log($._spritely.instances[_self.targetId]['options']);
-      console.log('width from options: ', _self.getAnimationWidth());
-      _self.setAnimationWidth(_self.displayWidth);
-      console.log('width from options after: ', _self.getAnimationWidth());
-
     }
     else {
       $._spritely.instances[_self.targetId]['options'].rewind = false;
     }
     this.fps = fps;
-    // TODO set sprite direction
     this.frameTarget.fps(Math.abs(this.fps));
-    // console.log("fps set:", fps);
   };
 
   this.setAnimationWidth = function (width) {
