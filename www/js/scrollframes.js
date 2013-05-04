@@ -72,23 +72,13 @@ function scaleFrames() {
 
   // destroy sprite animation
   $("#"+framesId).destroy();
+  // reset current row
+  myFrameScroller.resetSpriteFrame();
   
   // Frames
   myFrameScroller.setFrameCSS();
   // TODO consider constructing sprite anew necessary?
   myFrameScroller.constructSprite();
-
-  // update display dimensions
-  // myFrameScroller.updateAnimationDims();
-
-  // Set sprite animation Width
-  // TODO NOW; make sure sprite.width is set to displayWidth for correct animation when scaled to fit height
-  // TODO move to setFrameCSS / FrameScroller method
-  // console.log("myFrameScroller.displayWidth: ", myFrameScroller.displayWidth);
-  // myFrameScroller.frameTarget.width = myFrameScroller.displayWidth;
-  // var spritelyWidth = $._spritely.instances['scrollframes']['options'].width;
-  // var aRewind = $._spritely.instances['scrollframes']['options'].rewind;
-  // console.log("spritelyWidth: ", spritelyWidth);
 
   // Progress bar
   if( options.progress ) {
@@ -125,6 +115,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   this.preloadSeqs = preloadSeqs;
   this.preloadSeq = preloadSeq;
   this.setFrameCSS = setFrameCSS;
+  this.resetSpriteFrame = resetSpriteFrame;
 
   // sprite animation
   this.getFrameNumber = getFrameNumber;
@@ -137,8 +128,8 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       spriteFolder: "img/pilot_sequence/sprites/seq_01_7x15_low_res/",
       spritePrefix: "seq_01_7x15_low_res-",
       spriteExtension: ".jpg",
-      spriteColumns: 7,
-      spriteRows: 15,
+      no_of_columns: 7,
+      no_of_rows: 15,
       no_of_sprites: 3,
       frameWidth: 384,
       frameHeight: 216,
@@ -151,7 +142,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     }
   };
   this.curSequence = this.sequences[1];
-
+  
   this.preloadSeqs();
   // addLoadEvent(preloadSeqs);
   this.constructSprite();
@@ -211,9 +202,9 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       // console.log("in EventFunction at frame i = ", i);
       // console.log("_self.getFrameNumber: ", _self.getFrameNumber());
       if (_self.isPlayingForward()) {
-        if ( (_self.getFrameNumber()) % _self.curSequence.spriteColumns == 0 ) {
+        if ( (_self.getFrameNumber()) % _self.curSequence.no_of_columns == 0 ) {
           // end of spriteRow: swich to next spriteRow
-          if (_self.spriteRow < _self.curSequence.spriteRows ) {
+          if (_self.spriteRow < _self.curSequence.no_of_rows ) {
             var nextRow = _self.spriteRow + 1;
           }
           else {
@@ -225,13 +216,13 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       }
       else {
         // playing backward
-        if ( (_self.getFrameNumber() + 1 ) % _self.curSequence.spriteColumns == 0 ) {
+        if ( (_self.getFrameNumber() + 1 ) % _self.curSequence.no_of_columns == 0 ) {
           // beginning of spriteRow: swich to previous spriteRow
           if (_self.spriteRow > 1 ) {
             var nextRow = _self.spriteRow - 1;
           }
           else {
-            var nextRow = _self.curSequence.spriteRows;
+            var nextRow = _self.curSequence.no_of_rows;
           }
           // console.log("BACKWARD now setting row to: ", nextRow);
           obj.spStateHeight(nextRow, _self.displayHeight);
@@ -288,7 +279,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
 
     if (windowRatio > frameRatio) {
       // scale to fit width
-      var bgSizeValueString = String(_self.curSequence.spriteColumns*100) + "% " + "auto"
+      var bgSizeValueString = String(_self.curSequence.no_of_columns*100) + "% " + "auto"
       $("#"+_self.targetId).css("background-size", bgSizeValueString);
 
       // set display dimensions
@@ -297,13 +288,18 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     }
     else{
       // scale to fit height
-      var bgSizeValueString = "auto " + String(_self.curSequence.spriteRows * 100) + "%" //, " + String(scalePercentage) + "%"
+      var bgSizeValueString = "auto " + String(_self.curSequence.no_of_rows * 100) + "%" //, " + String(scalePercentage) + "%"
       $("#"+_self.targetId).css("background-size", bgSizeValueString);
 
       // set display dimensions
       _self.displayHeight = $(window).height();
       _self.displayWidth = _self.curSequence.frameWidth * $(window).height() / _self.curSequence.frameHeight;
     };
+  }
+
+  // reset variables storing current Frame
+  function resetSpriteFrame () {
+    _self.spriteRow = 1;
   }
 
   // update Animation Dimensions to reflect window fit resizing
@@ -375,15 +371,42 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   this.advance = function (n) {
     if ($._spritely.instances[_self.targetId]) {
       _self.setFPS(0);
-      var nextFrame = _self.getFrameNumber() + n;
-      if (nextFrame > _self.no_of_frames - 1) {
-        nextFrame = 0;
+
+      // NOW
+      var curFrame = _self.getFrameNumber();
+      var nextFrame = curFrame + n;
+
+      var deltaColumn = n % _self.no_of_frames
+      var nextColumn = _self.getFrameNumber() + deltaColumn;
+
+      var deltaRow = Math.floor(nextFrame / _self.no_of_frames);
+      var nextRow = _self.spriteRow + deltaRow;
+
+      // loop forward
+      if (nextColumn > _self.curSequence.no_of_columns - 1) {
+        nextColumn = nextColumn - _self.curSequence.no_of_columns;
       }
-      else if (nextFrame < 0 ) {
-        nextFrame = _self.no_of_frames - 1;
+      // NB for now Rows start at 1, while columns start at 0
+      if (nextRow > _self.curSequence.no_of_rows) {
+        nextRow = nextRow - _self.curSequence.no_of_rows;
+      }
+
+      // loop backward
+      if (nextColumn < 0 ) {
+        nextColumn = _self.curSequence.no_of_columns + nextColumn;
+      };
+      // NB for now Rows start at 1, while columns start at 0
+      if (nextRow < 1 ) {
+        nextRow = _self.curSequence.no_of_rows + nextRow;
       };
 
-      _self.setFrameNumber(nextFrame);
+      // set sprite column
+      _self.setFrameNumber(nextColumn);
+      
+      // set sprite row
+      _self.frameTarget.spStateHeight(nextRow, _self.displayHeight);
+      _self.spriteRow = nextRow;
+
       this.updateView();
     };
   };  
