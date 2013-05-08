@@ -1,8 +1,3 @@
-// TODO
-// * fullscreen
-// * reverse
-// * hi res images
-// * layout progressbar
 var myFrameScroller;
 var myScrollController;
 var options;
@@ -121,10 +116,12 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   this.getFrameNumber = getFrameNumber;
   this.setFrameNumber = setFrameNumber;
   this.isPlayingForward = isPlayingForward;
-
+  this.loadSprite = loadSprite;
+  this.loadSequence = loadSequence;
 
   this.sequences = {
     1: {
+      idx: 1,
       spriteFolder: "img/pilot_sequence/sprites/seq_01_7x15_low_res/",
       spritePrefix: "seq_01_7x15_low_res-",
       spriteExtension: ".jpg",
@@ -133,15 +130,22 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       no_of_sprites: 3,
       frameWidth: 384,
       frameHeight: 216,
-      // lastFrame is the final frame of the last sprite, 
-      // after which playback transitions to next sequence
-      lastFrame: {
-        spriteRow: 13,
-        spriteColumn: 6,
-      },
-    }
+    },
+    2: {
+      idx: 2,
+      spriteFolder: "img/pilot_sequence/sprites/seq_02_7x15_low_res/",
+      spritePrefix: "seq_02_7x15_low_res-",
+      spriteExtension: ".jpg",
+      no_of_columns: 7,
+      no_of_rows: 15,
+      no_of_sprites: 3,
+      frameWidth: 384,
+      frameHeight: 216,
+    },
+
   };
   this.curSequence = this.sequences[1];
+  this.curSprite = 1;
   
   this.preloadSeqs();
   // addLoadEvent(preloadSeqs);
@@ -202,13 +206,40 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       // console.log("in EventFunction at frame i = ", i);
       // console.log("_self.getFrameNumber: ", _self.getFrameNumber());
       if (_self.isPlayingForward()) {
+        // playing forward
         if ( (_self.getFrameNumber()) % _self.curSequence.no_of_columns == 0 ) {
           // end of spriteRow: swich to next spriteRow
           if (_self.spriteRow < _self.curSequence.no_of_rows ) {
+            // advance to next row from non-last row
             var nextRow = _self.spriteRow + 1;
           }
           else {
+            // advance to next Sprite from last row of current Sprite
             var nextRow = 1;
+            if ( _self.curSprite < _self.curSequence.no_of_sprites ) {
+              // advance to next Sprite in current Sequence
+              _self.curSprite += 1;
+              _self.setFrameCSS();
+            }
+            else {
+              // advance to next Sequence
+              var nextSequenceIdx;
+              if (_self.curSequence.idx < Object.keys(_self.sequences).length) {
+                // advance to next Sequence in line
+                nextSequenceIdx = _self.curSequence.idx + 1;
+              }
+              else {
+                // loop to first Sequence
+                nextSequenceIdx = 1
+              };
+              
+              _self.curSequence = _self.sequences[nextSequenceIdx];
+              _self.curSprite = 1;
+              _self.setFrameCSS();
+              console.log("nextSequenceIdx: ", nextSequenceIdx);
+              console.log("curSeq: ", _self.curSequence);
+            }
+
           }
           obj.spStateHeight(nextRow, _self.displayHeight);
           _self.spriteRow = nextRow;
@@ -219,14 +250,40 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
         if ( (_self.getFrameNumber() + 1 ) % _self.curSequence.no_of_columns == 0 ) {
           // beginning of spriteRow: swich to previous spriteRow
           if (_self.spriteRow > 1 ) {
-            var nextRow = _self.spriteRow - 1;
+            // recede to previous row within Sprite
+            var prevRow = _self.spriteRow - 1;
           }
           else {
-            var nextRow = _self.curSequence.no_of_rows;
+            // recede to last row of previous Sprite
+            var prevRow = _self.curSequence.no_of_rows;
+            if ( _self.curSprite > 1 ) {
+              // recede to previous Sprite in current Sequence
+              _self.curSprite -= 1;
+              _self.setFrameCSS();
+            }
+            else {
+              // TODO NOW
+              // recede to last Sprite in previous Sequence
+              var prevSequenceIdx;
+              if (_self.curSequence.idx > 1) {
+                // recede to end of previous Sequence
+                prevSequenceIdx = _self.curSequence.idx - 1;
+              }
+              else {
+                // recede to end of last Sequence
+                prevSequenceIdx = Object.keys(_self.sequences).length;
+              };
+              
+              _self.curSequence = _self.sequences[prevSequenceIdx];
+              _self.curSprite = _self.curSequence.no_of_sprites;
+              _self.setFrameCSS();
+
+              console.log("nextSequenceIdx: ", prevSequenceIdx);
+              console.log("curSeq: ", _self.curSequence);
+            }
           }
-          // console.log("BACKWARD now setting row to: ", nextRow);
-          obj.spStateHeight(nextRow, _self.displayHeight);
-          _self.spriteRow = nextRow;  
+          obj.spStateHeight(prevRow, _self.displayHeight);
+          _self.spriteRow = prevRow;  
         }
       };
     };
@@ -266,7 +323,8 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   };
 
   function setFrameCSS () {
-    $("#"+_self.targetId).css("background", "transparent url(img/pilot_sequence/sprites/seq_01_7x15_low_res/seq_01_7x15_low_res-0_numbers.jpg) 0 0 no-repeat");
+    // load current Sprite image
+    _self.loadSprite(_self.curSprite);
 
     // windowfit
     var windowWidth = $(window).width();
@@ -302,15 +360,28 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     _self.spriteRow = 1;
   }
 
+  function loadSprite (idx) {
+    $("#"+_self.targetId).css("background", "transparent url("+_self.curSequence.spriteFolder+_self.curSequence.spritePrefix+String(idx)+_self.curSequence.spriteExtension+") 0 0 no-repeat");
+    _self.curSprite = idx;
+  }
+
+  function loadSequence (idx) {
+    if (_self.sequences[idx]) {
+      _self.curSequence = _self.sequences[idx];
+      // TODO add parameter to indicate starting at beginning or end
+      // start at first Sprite
+      _self.loadSprite(1);
+      // first row
+      _self.spriteRow = 1;
+    };
+  }
+
   // update Animation Dimensions to reflect window fit resizing
   // for now only width matters
   this.updateAnimationDims = function () {
-    // console.log('width from options: ', _self.getAnimationWidth());
-    // console.log('displayWidth: ', _self.displayWidth);
     if (_self.getAnimationWidth != _self.displayWidth) {
       _self.setAnimationWidth(_self.displayWidth);  
     };
-    // console.log('width from options after: ', _self.getAnimationWidth());
   };
   
   this.updateProgress = function (currentFrameNumber) {
@@ -368,11 +439,11 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   
 
   // advance sprite by n frames (n can be negative)
+  // triggered by keypress
   this.advance = function (n) {
     if ($._spritely.instances[_self.targetId]) {
       _self.setFPS(0);
 
-      // NOW
       var curFrame = _self.getFrameNumber();
       var nextFrame = curFrame + n;
 
@@ -382,22 +453,42 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       var deltaRow = Math.floor(nextFrame / _self.no_of_frames);
       var nextRow = _self.spriteRow + deltaRow;
 
-      // loop forward
+      // loop column forward
       if (nextColumn > _self.curSequence.no_of_columns - 1) {
         nextColumn = nextColumn - _self.curSequence.no_of_columns;
       }
-      // NB for now Rows start at 1, while columns start at 0
+      // loop row forward
+      // NB for now, Rows start at 1, while columns start at 0
       if (nextRow > _self.curSequence.no_of_rows) {
+        // reached end of sprite
+
+        // loop row to beginning of sprite
         nextRow = nextRow - _self.curSequence.no_of_rows;
+
+        // TODO NOW
+        // if end of non-last sprite: advance to next sprite within sequence
+        // else: advance to first sprite in next sequence
+          // if curSequence < sequences.length: advance to next sequence in line
+          // else: advance to first sequence
       }
 
-      // loop backward
+      // loop column backward
       if (nextColumn < 0 ) {
         nextColumn = _self.curSequence.no_of_columns + nextColumn;
       };
+      // loop row backward
       // NB for now Rows start at 1, while columns start at 0
       if (nextRow < 1 ) {
+        // reached beginning of sprite
+
+        // loop row to end of sprite
         nextRow = _self.curSequence.no_of_rows + nextRow;
+
+        // TODO
+        // if beginning of non-first sprite: recede to previous sprite within sequence
+        // else: recede to last sprite in previous sequence
+          // if curSequence > 1: recede to previous sequence in line
+          // else: recede to last sequence
       };
 
       // set sprite column

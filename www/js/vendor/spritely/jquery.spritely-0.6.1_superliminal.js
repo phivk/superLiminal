@@ -76,10 +76,6 @@
                 var frames;
                 var animate = function(el) {
                     var w = options.width, h = options.height;
-                    
-                    // DEBUG
-                    console.log("w in animate: ", w);
-
                     if (!frames) {
                         frames = [];
                         total = 0
