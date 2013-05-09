@@ -93,6 +93,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   // this.sprite =  $._spritely.instances[el_id]
   // instead of $("#"+targetId)
 
+  // TODO consider deleting (available from sequences)
   this.no_of_frames = no_of_frames;
     
   this.progress = $("#"+progressClass);
@@ -242,6 +243,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
           _self.spriteRow = prevRow;  
         }
       };
+      _self.updateProgress();
     };
   };
 
@@ -329,13 +331,17 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     };
   };
   
-  this.updateProgress = function (currentFrameNumber) {
-    if ( this.progress ) {
+  // update progress bar to reflect progress within sequence
+  this.updateProgress = function () {
+    if ( _self.progress ) {
       // calc new width of progressbar
-      // console.log("this.getFrameNumber(): ", this.getFrameNumber());
-      if (this.getFrameNumber() >= 0) {
-        var new_width = ( this.getFrameNumber() / ( _self.no_of_frames - 1) ) * window.innerHeight + 'px';      
-        // update progressbar width
+      if (_self.getFrameNumber() >= 0) {
+        var seq_no_of_frames = _self.curSequence.no_of_sprites * _self.curSequence.no_of_columns * _self.curSequence.no_of_rows;
+        var curFrameInSequence = (_self.curSprite - 1) * _self.curSequence.no_of_rows * _self.curSequence.no_of_columns
+                                + (_self.spriteRow - 1) * _self.curSequence.no_of_columns
+                                + _self.getFrameNumber() + 1;
+        var new_width = ( curFrameInSequence / ( seq_no_of_frames - 1) ) * window.innerWidth + 'px';
+        // set progressbar width
         $(".progressDiv span").css( "width", new_width );  
       };
     };
@@ -438,6 +444,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
 
       this.updateView();
     };
+    _self.updateProgress();
   };
 
   this.setNextSprite = function () {
