@@ -117,7 +117,6 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   this.setFrameNumber = setFrameNumber;
   this.isPlayingForward = isPlayingForward;
   this.loadSprite = loadSprite;
-  this.loadSequence = loadSequence;
 
   this.sequences = {
     1: {
@@ -210,7 +209,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
         if ( (_self.getFrameNumber()) % _self.curSequence.no_of_columns == 0 ) {
           // end of spriteRow: swich to next spriteRow
           if (_self.spriteRow < _self.curSequence.no_of_rows ) {
-            // advance to next row from non-last row
+            // advance to next row within current Sprite
             var nextRow = _self.spriteRow + 1;
           }
           else {
@@ -219,7 +218,6 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
             if ( _self.curSprite < _self.curSequence.no_of_sprites ) {
               // advance to next Sprite in current Sequence
               _self.curSprite += 1;
-              _self.setFrameCSS();
             }
             else {
               // advance to next Sequence
@@ -235,11 +233,10 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
               
               _self.curSequence = _self.sequences[nextSequenceIdx];
               _self.curSprite = 1;
-              _self.setFrameCSS();
-              console.log("nextSequenceIdx: ", nextSequenceIdx);
-              console.log("curSeq: ", _self.curSequence);
+              // console.log("nextSequenceIdx: ", nextSequenceIdx);
+              // console.log("curSeq: ", _self.curSequence);
             }
-
+            _self.setFrameCSS();
           }
           obj.spStateHeight(nextRow, _self.displayHeight);
           _self.spriteRow = nextRow;
@@ -248,7 +245,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       else {
         // playing backward
         if ( (_self.getFrameNumber() + 1 ) % _self.curSequence.no_of_columns == 0 ) {
-          // beginning of spriteRow: swich to previous spriteRow
+          // reached beginning of spriteRow: swich to previous spriteRow
           if (_self.spriteRow > 1 ) {
             // recede to previous row within Sprite
             var prevRow = _self.spriteRow - 1;
@@ -259,10 +256,8 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
             if ( _self.curSprite > 1 ) {
               // recede to previous Sprite in current Sequence
               _self.curSprite -= 1;
-              _self.setFrameCSS();
             }
             else {
-              // TODO NOW
               // recede to last Sprite in previous Sequence
               var prevSequenceIdx;
               if (_self.curSequence.idx > 1) {
@@ -276,11 +271,10 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
               
               _self.curSequence = _self.sequences[prevSequenceIdx];
               _self.curSprite = _self.curSequence.no_of_sprites;
-              _self.setFrameCSS();
-
-              console.log("nextSequenceIdx: ", prevSequenceIdx);
-              console.log("curSeq: ", _self.curSequence);
+              // console.log("nextSequenceIdx: ", prevSequenceIdx);
+              // console.log("curSeq: ", _self.curSequence);
             }
+            _self.setFrameCSS();
           }
           obj.spStateHeight(prevRow, _self.displayHeight);
           _self.spriteRow = prevRow;  
@@ -363,17 +357,6 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   function loadSprite (idx) {
     $("#"+_self.targetId).css("background", "transparent url("+_self.curSequence.spriteFolder+_self.curSequence.spritePrefix+String(idx)+_self.curSequence.spriteExtension+") 0 0 no-repeat");
     _self.curSprite = idx;
-  }
-
-  function loadSequence (idx) {
-    if (_self.sequences[idx]) {
-      _self.curSequence = _self.sequences[idx];
-      // TODO add parameter to indicate starting at beginning or end
-      // start at first Sprite
-      _self.loadSprite(1);
-      // first row
-      _self.spriteRow = 1;
-    };
   }
 
   // update Animation Dimensions to reflect window fit resizing
@@ -465,11 +448,26 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
         // loop row to beginning of sprite
         nextRow = nextRow - _self.curSequence.no_of_rows;
 
-        // TODO NOW
         // if end of non-last sprite: advance to next sprite within sequence
-        // else: advance to first sprite in next sequence
-          // if curSequence < sequences.length: advance to next sequence in line
-          // else: advance to first sequence
+        if ( _self.curSprite < _self.curSequence.no_of_sprites ) {
+          // advance to next Sprite in current Sequence
+          _self.curSprite += 1;
+        }
+        else {
+          // advance to next Sequence
+          var nextSequenceIdx;
+          if (_self.curSequence.idx < Object.keys(_self.sequences).length) {
+            // advance to next Sequence in line
+            nextSequenceIdx = _self.curSequence.idx + 1;
+          }
+          else {
+            // loop to first Sequence
+            nextSequenceIdx = 1
+          };
+          _self.curSequence = _self.sequences[nextSequenceIdx];
+          _self.curSprite = 1;
+        }
+        _self.setFrameCSS();
       }
 
       // loop column backward
@@ -479,16 +477,34 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       // loop row backward
       // NB for now Rows start at 1, while columns start at 0
       if (nextRow < 1 ) {
-        // reached beginning of sprite
+        // reached beginning of sprite: redece to previous sprite
 
         // loop row to end of sprite
         nextRow = _self.curSequence.no_of_rows + nextRow;
 
-        // TODO
-        // if beginning of non-first sprite: recede to previous sprite within sequence
-        // else: recede to last sprite in previous sequence
-          // if curSequence > 1: recede to previous sequence in line
-          // else: recede to last sequence
+        if ( _self.curSprite > 1 ) {
+          // recede to previous Sprite in current Sequence
+          _self.curSprite -= 1;
+        }
+        else {
+          // recede to last Sprite in previous Sequence
+          var prevSequenceIdx;
+          if (_self.curSequence.idx > 1) {
+            // recede to end of previous Sequence
+            prevSequenceIdx = _self.curSequence.idx - 1;
+          }
+          else {
+            // recede to end of last Sequence
+            prevSequenceIdx = Object.keys(_self.sequences).length;
+          };
+          
+          _self.curSequence = _self.sequences[prevSequenceIdx];
+          _self.curSprite = _self.curSequence.no_of_sprites;
+          // console.log("nextSequenceIdx: ", prevSequenceIdx);
+          // console.log("curSeq: ", _self.curSequence);
+        }
+        _self.setFrameCSS();
+
       };
 
       // set sprite column
