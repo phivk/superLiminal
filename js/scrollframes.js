@@ -1,8 +1,3 @@
-// TODO
-// * fullscreen
-// * reverse
-// * hi res images
-// * layout progressbar
 var myFrameScroller;
 var myScrollController;
 var options;
@@ -16,6 +11,8 @@ function start () {
   // console.log("body before: ", $("body").children());
   var wrapperId = "wrapper";
   var framesId = "scrollframes";
+  var controllerId = "scrollcontroller";
+
   var progressClass = "progressDiv";
 
   options = {
@@ -23,21 +20,23 @@ function start () {
   }
   
   // setup
-  setupDOM(wrapperId, framesId, progressClass);
+  setupDOM(wrapperId, framesId, controllerId, progressClass);
   setupHandlers();
   
   // init FrameScroller & Controller objects
   myFrameScroller = new FrameScroller(framesId, 7, progressClass);
-  myScrollController = new ScrollController(framesId, myFrameScroller);
+  myScrollController = new ScrollController(controllerId, myFrameScroller);
   myKeyController = new KeyController (myFrameScroller);
 
   myFrameScroller.setFrameCSS();
 }
 
-function setupDOM (wrapperId, framesId, progressClass) {  
+function setupDOM (wrapperId, framesId, controllerId, progressClass) {  
   // Frames
   loadFrames(wrapperId, framesId);
-  // setFrameCSS(framesId);
+
+  // ScrollController
+  loadScrollController(wrapperId, controllerId);
 
   // Progress bar
 	if( options.progress ) {
@@ -48,15 +47,36 @@ function setupDOM (wrapperId, framesId, progressClass) {
 function setupHandlers () {
   // window.resize handler
   $(window).resize(function() {
-    // console.log('$(window).width(): ', $(window).width());
-    // console.log('$(window).height(): ', $(window).height());
     scaleFrames();
   });
 }
 
 function loadFrames (wrapperId, framesId) {
-  // $(wrapperId).prepend('<div id="'+framesId+'"></div>');
-  $("#"+wrapperId).prepend('<div id="scrollframes"></div>');
+  $("#"+wrapperId).prepend('<div id="'+framesId+'"></div>');  
+}
+
+function loadScrollController (wrapperId, controllerId) {
+  console.log("loading ScrollController");
+  $("#"+wrapperId).prepend('<div id="'+controllerId+'" class="overlay"></div>');  
+}
+
+//DEPRECATED
+function loadHDbox (wrapperId, HDBoxId) {
+  $("#"+wrapperId).append('<img src="img/hd/hd_test.jpg" class="hd" id='+HDBoxId+'>');
+
+  // var styles = {
+  //   background: "url(img/hd/hd_test.jpg) no-repeat center center fixed",
+  //   "-webkit-background-size": "cover",
+  //   "-moz-background-size": "cover",
+  //   "-o-background-size": "cover",
+  //   "background-size": "cover",
+  // };
+
+
+  // $("#"+HDBoxId).css( styles );
+  $("#"+HDBoxId).css( "z-index", 100 );
+
+  // $("#"+HDBoxId).css( "background-color", "blue" );
 }
 
 function loadProgress (wrapperId, progressClass) {
@@ -98,6 +118,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   // this.sprite =  $._spritely.instances[el_id]
   // instead of $("#"+targetId)
 
+  // TODO consider deleting (available from sequences)
   this.no_of_frames = no_of_frames;
     
   this.progress = $("#"+progressClass);
@@ -106,6 +127,8 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   this.spriteRow = 1;
   this.displayWidth;
   this.displayHeight;
+
+  this.bShowingHD = false;
 
   /// Methods
   // Setup
@@ -121,27 +144,40 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   this.getFrameNumber = getFrameNumber;
   this.setFrameNumber = setFrameNumber;
   this.isPlayingForward = isPlayingForward;
-
+  this.loadSprite = loadSprite;
 
   this.sequences = {
     1: {
-      spriteFolder: "img/pilot_sequence/sprites/seq_01_7x15_low_res/",
-      spritePrefix: "seq_01_7x15_low_res-",
+      idx: 1,
+      spriteFolder: "img/final_sprites/",
+      spritePrefix: "seq_07_7x15_",
       spriteExtension: ".jpg",
+      hdFolder: "img/hd/1280_720/seq_07/",
+      hdPrefix: "seq_07_1280x720_",
+      hdExtension: ".jpg",
       no_of_columns: 7,
       no_of_rows: 15,
-      no_of_sprites: 3,
+      no_of_sprites: 2,
       frameWidth: 384,
       frameHeight: 216,
-      // lastFrame is the final frame of the last sprite, 
-      // after which playback transitions to next sequence
-      lastFrame: {
-        spriteRow: 13,
-        spriteColumn: 6,
-      },
+    },
+    2: {
+      idx: 2,
+      spriteFolder: "img/final_sprites/",
+      spritePrefix: "seq_08_7x15_",
+      spriteExtension: ".jpg",
+      hdFolder: "img/hd/1280_720/seq_08/",
+      hdPrefix: "seq_08_1280x720_",
+      hdExtension: ".jpg",
+      no_of_columns: 7,
+      no_of_rows: 15,
+      no_of_sprites: 5,
+      frameWidth: 384,
+      frameHeight: 216,
     }
   };
   this.curSequence = this.sequences[1];
+  this.curSprite = 1;
   
   this.preloadSeqs();
   // addLoadEvent(preloadSeqs);
@@ -175,7 +211,7 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   };
 
   function loadSequenceFrames (wrapperId, framesId) {
-    $("#"+wrapperId).prepend('<div id="scrollframes"></div>');
+    $("#"+wrapperId).prepend('<div id="'+framesId+'"></div>');
     console.log("prepended: ", '<div id="'+framesId+'"></div>');
   };
 
@@ -202,13 +238,19 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       // console.log("in EventFunction at frame i = ", i);
       // console.log("_self.getFrameNumber: ", _self.getFrameNumber());
       if (_self.isPlayingForward()) {
+        // playing forward
         if ( (_self.getFrameNumber()) % _self.curSequence.no_of_columns == 0 ) {
           // end of spriteRow: swich to next spriteRow
           if (_self.spriteRow < _self.curSequence.no_of_rows ) {
+            // advance to next row within current Sprite
             var nextRow = _self.spriteRow + 1;
           }
           else {
+            // advance to next Sprite from last row of current Sprite
             var nextRow = 1;
+            // set & load next sprite
+            _self.setNextSprite();
+            _self.setFrameCSS();
           }
           obj.spStateHeight(nextRow, _self.displayHeight);
           _self.spriteRow = nextRow;
@@ -217,18 +259,23 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       else {
         // playing backward
         if ( (_self.getFrameNumber() + 1 ) % _self.curSequence.no_of_columns == 0 ) {
-          // beginning of spriteRow: swich to previous spriteRow
+          // reached beginning of spriteRow: swich to previous spriteRow
           if (_self.spriteRow > 1 ) {
-            var nextRow = _self.spriteRow - 1;
+            // recede to previous row within Sprite
+            var prevRow = _self.spriteRow - 1;
           }
           else {
-            var nextRow = _self.curSequence.no_of_rows;
+            // recede to last row of previous Sprite
+            var prevRow = _self.curSequence.no_of_rows;
+            // set & load prev sprite
+            _self.setPrevSprite();
+            _self.setFrameCSS();
           }
-          // console.log("BACKWARD now setting row to: ", nextRow);
-          obj.spStateHeight(nextRow, _self.displayHeight);
-          _self.spriteRow = nextRow;  
+          obj.spStateHeight(prevRow, _self.displayHeight);
+          _self.spriteRow = prevRow;  
         }
       };
+      _self.updateProgress();
     };
   };
 
@@ -266,7 +313,8 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   };
 
   function setFrameCSS () {
-    $("#"+_self.targetId).css("background", "transparent url(img/pilot_sequence/sprites/seq_01_7x15_low_res/seq_01_7x15_low_res-0_numbers.jpg) 0 0 no-repeat");
+    // load current Sprite image
+    _self.loadSprite(_self.curSprite);
 
     // windowfit
     var windowWidth = $(window).width();
@@ -295,6 +343,8 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       _self.displayHeight = $(window).height();
       _self.displayWidth = _self.curSequence.frameWidth * $(window).height() / _self.curSequence.frameHeight;
     };
+
+    // TODO set centered
   }
 
   // reset variables storing current Frame
@@ -302,24 +352,28 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
     _self.spriteRow = 1;
   }
 
+  function loadSprite (idx) {
+    $("#"+_self.targetId).css("background", "transparent url("+_self.curSequence.spriteFolder+_self.curSequence.spritePrefix+String(idx)+_self.curSequence.spriteExtension+") 0 0 no-repeat");
+    _self.curSprite = idx;
+  }
+
   // update Animation Dimensions to reflect window fit resizing
   // for now only width matters
   this.updateAnimationDims = function () {
-    // console.log('width from options: ', _self.getAnimationWidth());
-    // console.log('displayWidth: ', _self.displayWidth);
     if (_self.getAnimationWidth != _self.displayWidth) {
       _self.setAnimationWidth(_self.displayWidth);  
     };
-    // console.log('width from options after: ', _self.getAnimationWidth());
   };
   
-  this.updateProgress = function (currentFrameNumber) {
-    if ( this.progress ) {
+  // update progress bar to reflect progress within sequence
+  this.updateProgress = function () {
+    if ( _self.progress ) {
       // calc new width of progressbar
-      // console.log("this.getFrameNumber(): ", this.getFrameNumber());
-      if (this.getFrameNumber() >= 0) {
-        var new_width = ( this.getFrameNumber() / ( _self.no_of_frames - 1) ) * window.innerHeight + 'px';      
-        // update progressbar width
+      if (_self.getFrameNumber() >= 0) {
+        var seq_no_of_frames = _self.curSequence.no_of_sprites * _self.curSequence.no_of_columns * _self.curSequence.no_of_rows;
+        var curFrameInSequence = _self.getCurFrameInSeq();
+        var new_width = ( curFrameInSequence / ( seq_no_of_frames - 1) ) * window.innerWidth + 'px';
+        // set progressbar width
         $(".progressDiv span").css( "width", new_width );  
       };
     };
@@ -334,6 +388,13 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       // set back frame to prevent unwanted advance
       _self.setFrameNumber(curFrame);
     }, 10);
+  }
+
+  // return number of current frame within sequence
+  this.getCurFrameInSeq = function () {
+    return (_self.curSprite - 1) * _self.curSequence.no_of_rows * _self.curSequence.no_of_columns
+      + (_self.spriteRow - 1) * _self.curSequence.no_of_columns
+      + _self.getFrameNumber() + 1;
   }
   
   this.gettargetId = function () {
@@ -359,20 +420,20 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
   };
 
   this.setAnimationWidth = function (width) {
-    $._spritely.instances['scrollframes']['options']['width'] = width;
+    $._spritely.instances[_self.targetId]['options']['width'] = width;
   };
   
   this.getAnimationWidth = function () {
-    return $._spritely.instances['scrollframes']['options']['width'];
+    return $._spritely.instances[_self.targetId]['options']['width'];
   };
   
 
   // advance sprite by n frames (n can be negative)
+  // triggered by keypress
   this.advance = function (n) {
     if ($._spritely.instances[_self.targetId]) {
       _self.setFPS(0);
 
-      // NOW
       var curFrame = _self.getFrameNumber();
       var nextFrame = curFrame + n;
 
@@ -382,22 +443,35 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
       var deltaRow = Math.floor(nextFrame / _self.no_of_frames);
       var nextRow = _self.spriteRow + deltaRow;
 
-      // loop forward
+      // loop column forward
       if (nextColumn > _self.curSequence.no_of_columns - 1) {
         nextColumn = nextColumn - _self.curSequence.no_of_columns;
       }
-      // NB for now Rows start at 1, while columns start at 0
+      // loop row forward
+      // NB for now, Rows start at 1, while columns start at 0
       if (nextRow > _self.curSequence.no_of_rows) {
+        // reached end of sprite
+        // loop row to beginning of sprite
         nextRow = nextRow - _self.curSequence.no_of_rows;
+        // set & load next sprite
+        _self.setNextSprite();
+        _self.setFrameCSS();
       }
 
-      // loop backward
+      // loop column backward
       if (nextColumn < 0 ) {
         nextColumn = _self.curSequence.no_of_columns + nextColumn;
       };
+      // loop row backward
       // NB for now Rows start at 1, while columns start at 0
       if (nextRow < 1 ) {
+        // reached beginning of sprite: redece to previous sprite
+
+        // loop row to end of sprite
         nextRow = _self.curSequence.no_of_rows + nextRow;
+        // set & load prev sprite
+        _self.setPrevSprite();
+        _self.setFrameCSS();
       };
 
       // set sprite column
@@ -409,7 +483,95 @@ function FrameScroller (targetId, no_of_frames, progressClass) {
 
       this.updateView();
     };
-  };  
+    _self.updateProgress();
+  };
+
+  this.setNextSprite = function () {
+    // if end of non-last sprite: advance to next sprite within sequence
+    if ( _self.curSprite < _self.curSequence.no_of_sprites ) {
+      // advance to next Sprite in current Sequence
+      _self.curSprite += 1;
+    }
+    else {
+      // advance to next Sequence
+      _self.setNextSequence();
+    }
+  };
+
+  this.setPrevSprite = function () {
+    if ( _self.curSprite > 1 ) {
+      // recede to previous Sprite in current Sequence
+      _self.curSprite -= 1;
+    }
+    else {
+      // recede to last Sprite in previous Sequence
+      _self.setPrevSequence();
+    };
+  };
+
+  this.setNextSequence = function () {
+    var nextSequenceIdx;
+    if (_self.curSequence.idx < Object.keys(_self.sequences).length) {
+      // advance to next Sequence in line
+      nextSequenceIdx = _self.curSequence.idx + 1;
+    }
+    else {
+      // loop to first Sequence
+      nextSequenceIdx = 1
+    };
+    _self.curSequence = _self.sequences[nextSequenceIdx];
+    _self.curSprite = 1;
+  };
+
+  this.setPrevSequence = function () {
+    var prevSequenceIdx;
+    if (_self.curSequence.idx > 1) {
+      // recede to end of previous Sequence
+      prevSequenceIdx = _self.curSequence.idx - 1;
+    }
+    else {
+      // recede to end of last Sequence
+      prevSequenceIdx = Object.keys(_self.sequences).length;
+    };
+    
+    _self.curSequence = _self.sequences[prevSequenceIdx];
+    _self.curSprite = _self.curSequence.no_of_sprites;
+  };
+
+  this.hideHDImage = function () {
+    if(_self.bShowingHD){
+      $(".hd").remove();  
+      _self.bShowingHD = false;
+    }
+  }
+
+  this.showHDImage = function () {
+    // NOW
+    console.log("show HD");
+    
+    if (!_self.bShowingHD) {
+      // show HD Image version of current frame
+      
+      // get number of current frame in sequence
+      var curFrameInSequence = _self.getCurFrameInSeq();
+      
+      // add padding
+      var paddedFrameNum = pad(curFrameInSequence, 3);
+
+      // format src string
+      var hdSrcString = _self.curSequence.hdFolder+_self.curSequence.hdPrefix+paddedFrameNum+_self.curSequence.hdExtension;
+      $("#wrapper").append('<img src="'+hdSrcString+'" class="hd transparent" id="hdbox">');
+      
+      // fade in hd image (doesnt transition without timeout)
+      window.setTimeout(function () {
+        $("img.hd").toggleClass("transparent");
+      }, 100);
+
+      // set z-index
+      $("#hdbox").css( "z-index", 100);
+      _self.bShowingHD = true;  
+    };
+  }
 };
 
 // define ScrollController prototype
@@ -460,7 +622,13 @@ function ScrollController (controlId, targetFrameScroller) {
     // console.log(delta, deltaX, deltaY);
     var scrollSpeed = this.wheelToScroll(delta, deltaX, deltaY);
     this.setScrollOut();
+    
+    // hide HD image
+    this.targetFrameScroller.hideHDImage();
+
+    // set sprite fps
     this.targetFrameScroller.setFPS(scrollSpeed);
+
   };
   
   this.setScrollOut = function () {
@@ -471,9 +639,7 @@ function ScrollController (controlId, targetFrameScroller) {
   
   this.scrollOut = function () {
     var nowStamp = new Date().getTime();
-    // console.log("this.lastWheelStamp: ", _self.lastWheelStamp);
-    // console.log("nowStamp: ", nowStamp);
-    // console.log("deltatime: ", nowStamp - _self.lastWheelStamp);
+
     if ((nowStamp - _self.lastWheelStamp) >= 0.95 * _self.scrollOutDelay) {
       
       if (_self.targetFrameScroller.getFPS() > 1) {
@@ -484,8 +650,10 @@ function ScrollController (controlId, targetFrameScroller) {
         window.setTimeout(_self.scrollOut, 100);
       }
       else {
-        // console.log("*********KILLING LOG!!!!");
+        // stop sprite frame advancement
         _self.targetFrameScroller.setFPS(0);
+        // show HD image
+        _self.targetFrameScroller.showHDImage();
       };
     };
   };
@@ -545,7 +713,10 @@ function KeyController (targetFrameScroller) {
     };
 
     if(code == 70) { // "f"
-      console.log(_self.targetFrameScroller.getFrameNumber());
+      // console.log(_self.targetFrameScroller.getFrameNumber());
+      console.log("f pressed");
+      // $("img.hd").toggleClass("transparent");
+      // _self.targetFrameScroller.hideHDImage();
     };
 
 
