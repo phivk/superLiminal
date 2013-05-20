@@ -16,6 +16,9 @@
         
         
         <style type="text/css">
+          body {
+            background-color: #000;
+          }
           #scrollframes {
             background: transparent url(img/pilot_sequence/sprites/10x_128_72_ball.png) 0 0 no-repeat;
 /*            background: transparent url(img/pilot_sequence/sprites/10x_128_72.png) 0 0 no-repeat;*/
@@ -48,6 +51,8 @@
             top: 0;
             left: 0;
 
+            z-index: 100;
+
             -webkit-transition: opacity 0.5s ease-in-out;
             -moz-transition: opacity 0.5s ease-in-out;
             -o-transition: opacity 0.5s ease-in-out;
@@ -60,8 +65,8 @@
 
           @media screen and (max-width: 1024px) { /* Specific to this particular image */
             img.hd {
-              left: 50%;
-              margin-left: -512px;   /* 50% */
+              left: 0px;
+              /*margin-left: -512px;*/   /* 50% */
             }
           }
 
@@ -85,7 +90,8 @@
         <!-- // <script src="spritely/scripts/jquery-ui-1.7.2.spritely.custom.min.js" type="text/javascript"></script> -->
       	<script src="js/vendor/spritely/jquery.spritely-0.6.1_superliminal.js" type="text/javascript"></script>
       	<script src="js/vendor/jquerymousewheel/jquery.mousewheel.js"></script>
-        
+        <script src="js/vendor/jquery.imageloader.js"></script>
+
         <!-- custom script for scroll video interaction -->
         <script type="text/javascript" src="js/helper.js"></script>
         <script type="text/javascript" src="js/scrollframes.js"></script>
